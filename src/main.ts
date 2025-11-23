@@ -42,7 +42,10 @@ async function bootstrap() {
   }));
 
   app.enableCors({
-    origin: 'http://localhost:5174', // آدرس فرانت (Vite)
+    origin: [
+      'http://localhost:5174',
+      'https://dash.petoman.com'
+    ],
     methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
     credentials: true
   })
