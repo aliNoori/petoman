@@ -11,8 +11,9 @@ async function seed() {
     const faqType = await typeRepo.findOneBy({ name: 'faq' });
     const docType = await typeRepo.findOneBy({ name: 'document' });
     const filmType = await typeRepo.findOneBy({ name: 'film' });
+    const danimType = await typeRepo.findOneBy({ name: 'danim' });
 
-    if (!faqType || !docType || !filmType) throw new Error('Category types must be seeded first');
+    if (!faqType || !docType || !filmType || !danimType) throw new Error('Category types must be seeded first');
 
     const categories = [
         { title: 'عمومی', slug: 'general', color: '#6B7280', type: faqType },
@@ -31,6 +32,11 @@ async function seed() {
         { title: 'اکشن', slug: 'action', color: '#EF4444', type: filmType },
         { title: 'کمدی', slug: 'comedy', color: '#10B981', type: filmType },
         { title: 'درام', slug: 'drama', color: '#3B82F6', type: filmType },
+
+
+        { title: 'حمایت مالی', slug: 'danim_financial-support', color: '#10B981', type: danimType },
+        { title: 'رویدادها', slug: 'danim_events', color: '#3B82F6', type: danimType },
+        { title: 'حیوانات', slug: 'danim_animals', color: '#F59E0B', type: danimType },
     ];
 
     for (const c of categories) {
