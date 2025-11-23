@@ -19,7 +19,7 @@ jobs:
 
       - name: Sync code to server
         run: |
-          sudo rsync -avz --delete --exclude='.git' ./ /var/www/api.petoman.com/pet
+          sudo rsync -avz --delete --exclude='.git' --exclude='.env' ./ /var/www/api.petoman.com/pet
           sudo chmod -R 770 /var/www/api.petoman.com/pet
           sudo chown -R www-data:www-data /var/www/api.petoman.com/pet
 
