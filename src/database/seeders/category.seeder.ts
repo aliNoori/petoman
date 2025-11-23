@@ -1,0 +1,45 @@
+import { DataSource } from 'typeorm';
+import { Category} from "../../shared/category/category.entity";
+import { CategoryTypeEntity} from "../../shared/category/category-type.entity";
+import slugify from 'slugify';
+import {AppDataSource} from "../data-source";
+async function seed() {
+    await AppDataSource.initialize();
+    const categoryRepo = AppDataSource.getRepository(Category);
+    const typeRepo = AppDataSource.getRepository(CategoryTypeEntity);
+
+    const faqType = await typeRepo.findOneBy({ name: 'faq' });
+    const docType = await typeRepo.findOneBy({ name: 'document' });
+    const filmType = await typeRepo.findOneBy({ name: 'film' });
+
+    if (!faqType || !docType || !filmType) throw new Error('Category types must be seeded first');
+
+    const categories = [
+        { title: 'عمومی', slug: 'general', color: '#6B7280', type: faqType },
+        { title: 'حمایت مالی', slug: 'financial-support', color: '#10B981', type: faqType },
+        { title: 'رویدادها', slug: 'events', color: '#3B82F6', type: faqType },
+        { title: 'داوطلبی', slug: 'volunteering', color: '#8B5CF6', type: faqType },
+        { title: 'حیوانات', slug: 'animals', color: '#F59E0B', type: faqType },
+        { title: 'پرداخت', slug: 'payment', color: '#E11D48', type: faqType },
+
+        { title: 'نجات اضطراری', slug: 'rescue', color: '#EF4444', type: docType },
+        { title: 'درمان و توانبخشی', slug: 'treatment', color: '#10B981', type: docType },
+        { title: 'داستان‌های موفقیت', slug: 'success', color: '#8B5CF6', type: docType },
+        { title: 'پناهگاه و نگهداری', slug: 'shelter', color: '#F59E0B', type: docType },
+        { title: 'آموزش و آگاهی', slug: 'education', color: '#3B82F6', type: docType },
+
+        { title: 'اکشن', slug: 'action', color: '#EF4444', type: filmType },
+        { title: 'کمدی', slug: 'comedy', color: '#10B981', type: filmType },
+        { title: 'درام', slug: 'drama', color: '#3B82F6', type: filmType },
+    ];
+
+    for (const c of categories) {
+        const exist = await categoryRepo.findOne({ where: { slug: c.slug } });
+        if (!exist) await categoryRepo.save(categoryRepo.create(c));
+    }
+
+    console.log('✅ Categories seeded');
+    await AppDataSource.destroy();
+}
+
+seed().catch(console.error);

@@ -1,0 +1,83 @@
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+    OneToOne,
+} from 'typeorm';
+import { Supporter} from "../../../modules/supporter/public-supporters/supporter.entity";
+import {IsOptional, IsString} from "class-validator";
+
+export enum UserRole {
+    //USER = 'user',
+    SUBSCRIBER='subscriber',
+    ADMIN = 'admin',
+    SUPPORTER_ADMIN = 'supporter_admin',
+    SUPPORTER = 'supporter',
+    DANIM_ADMIN = 'danim_admin',
+    FILM_ADMIN = 'film_admin',
+    MARKET_ADMIN = 'market_admin',
+    VET_ADMIN = 'vet_admin',
+    Editor='editor',
+    Author='author',
+
+
+}
+
+@Entity('users')
+export class User {
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
+
+    @Column({ length: 100 })
+    fullName: string;
+
+    @IsOptional()
+    @Column({ nullable: true ,unique: true})
+    username: string;
+
+    @Column({ unique: true })
+    email: string;
+
+    @Column({ default: false })
+    isVerified: boolean;
+
+    @Column({ nullable: true, unique: true })
+    phoneNumber: string;
+
+    @Column()
+    password: string;
+
+    @Column({ nullable: true })
+    avatar?: string;
+
+    @Column({ default: true })
+    isActive: boolean;
+
+    @Column({ type: 'date', nullable: true })
+    dateOfBirth?: Date;
+
+    @Column({ default: false })
+    isOnline: boolean;
+
+    @Column({ type: 'timestamp', nullable: true })
+    lastSeen?: Date|null;
+
+    @Column({ type: 'simple-array', nullable: true })
+    roles: UserRole[];
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @Column({ type: 'timestamp', nullable: true })
+    lastLogin?: Date | null;
+
+
+    // ✅ ارتباط با Supporter
+    @OneToOne(() => Supporter, (supporter) => supporter.user)
+    supporterProfile: Supporter;
+}
