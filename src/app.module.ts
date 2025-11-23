@@ -40,6 +40,7 @@ import {AccessControlModule} from "nest-access-control";
 import {roles} from "./shared/auth/guards/roles";
 import {DanimHomePageSetting} from "./modules/Danim/setting/home-page/home-page.enitity";
 import {DanimPerformanceSetting} from "./modules/Danim/setting/performance/performance-setting.entity";
+import {AppController} from "./app.controller";
 
 @Module({
     imports: [ConfigModule.forRoot({
@@ -62,7 +63,7 @@ import {DanimPerformanceSetting} from "./modules/Danim/setting/performance/perfo
         secret: process.env.JWT_SECRET || 'secret-key',
         signOptions: {expiresIn: '1d'},
     }), AccessControlModule.forRoles(roles),UserModule,UploadModule,CategoryModule,TagModule, ConfigModule, AuthModule, MessageModule, SupporterModule,DanimModule],
-    controllers: [],
+    controllers: [AppController],
     providers: [AppService, ChatGateway],
 })
 export class AppModule {

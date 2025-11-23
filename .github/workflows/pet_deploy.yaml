@@ -39,7 +39,7 @@ jobs:
 
       - name: Check application health
         run: |
-          URL="https://api.petoman.com/"
+          URL="https://api.petoman.com/api/health"
           MAX_RETRIES=10
           SLEEP_SEC=5
           for i in $(seq 1 $MAX_RETRIES); do
