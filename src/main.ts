@@ -30,6 +30,8 @@ async function bootstrap() {
     },
   });
 
+  app.useStaticAssets(join(__dirname, '..', 'public'));
+
 
   app.setGlobalPrefix('api',{});
   app.enableVersioning({type: VersioningType.URI});

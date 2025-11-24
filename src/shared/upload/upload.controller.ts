@@ -3,7 +3,7 @@ import {
     Post,
     UploadedFile,
     UseInterceptors,
-    BadRequestException,
+    BadRequestException, Delete, Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -112,5 +112,23 @@ export class UploadController {
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
         const upload = await this.uploadService.saveFile(file, UploadType.FILE);
         return { url: upload.url, id: upload.id };
+    }
+
+    @Delete()
+    async deleteFile(@Body('url') url: string) {
+        try {
+            // مسیر فایل را از URL استخراج کن
+            const relativePath = url.replace(/^.*\/uploads\//, '');
+            const filePath = `./uploads/${relativePath}`;
+
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                //await this.uploadService.removeFile(url); // اگر در DB ذخیره می‌کنی
+                return { success: true, message: 'فایل حذف شد' };
+            }
+            return { success: false, message: 'فایل یافت نشد' };
+        } catch (err) {
+            return { success: false, message: 'خطا در حذف فایل', error: err.message };
+        }
     }
 }
