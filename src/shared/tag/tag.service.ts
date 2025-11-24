@@ -40,6 +40,30 @@ export class TagService {
         return this.tagRepository.save(tag);
     }
 
+    async incrementCount(id: string) {
+        const tag = await this.tagRepository.findOne({ where: { id } });
+        if (!tag) throw new NotFoundException('Tag not found');
+
+        tag.count = (tag.count || 0) + 1;
+        tag.lastUsed = new Date().toISOString();
+
+        return await this.tagRepository.save(tag);
+    }
+
+    async decrementCount(id: string) {
+        const tag = await this.tagRepository.findOne({ where: { id } });
+        if (!tag) throw new NotFoundException('Tag not found');
+
+        if (tag.count > 0) {
+            tag.count = tag.count - 1;
+            tag.lastUsed = new Date().toISOString();
+            return await this.tagRepository.save(tag);
+        }
+
+        return tag; // اگر صفر بود، همون رو برگردون
+    }
+
+
 
     async remove(id: string) {
         const tag = await this.tagRepository.findOne({ where: { id } });

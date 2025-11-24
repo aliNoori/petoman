@@ -30,7 +30,7 @@ export class KindnessService {
 
     async findAll(): Promise<KindnessMeetingResponseDto[]> {
         const meetings = await this.kindnessRepo.find({
-            relations: ['donations'],
+            relations: ['donations','category'],
             order: { createdAt: 'DESC' },
         });
         return meetings.map(m => this.toResponseDto(m))
@@ -132,16 +132,22 @@ export class KindnessService {
     }
 
     private calculateDuration(start?: string, end?: string): string | null {
-        if (!start || !end) return null
+        if (!start) return null;
         try {
-            const days = differenceInDays(parseISO(end), parseISO(start))
-            if (days < 1) return 'کمتر از یک روز'
-            if (days === 1) return '1 روز'
-            if (days < 30) return `${days} روز`
-            const months = Math.floor(days / 30)
-            return `${months} ماه`
+            // اگر end نبود، تاریخ امروز رو در نظر بگیر
+            const endDate = end ? parseISO(end) : new Date();
+            const startDate = parseISO(start);
+
+            const days = Math.abs(differenceInDays(endDate, startDate));
+
+            if (days < 1) return 'کمتر از یک روز';
+            if (days === 1) return '1 روز';
+            if (days < 30) return `${days} روز`;
+
+            const months = Math.floor(days / 30);
+            return `${months} ماه`;
         } catch {
-            return null
+            return null;
         }
     }
     private toResponseDto(meeting: KindnessMeeting): KindnessMeetingResponseDto {
@@ -149,7 +155,7 @@ export class KindnessService {
         const image = meeting.image?.startsWith('http') ? meeting.image : `${baseUrl}${meeting.image}`
 
         const start = meeting.type === KindnessType.VOLUNTEER ? meeting.eventDate : meeting.startDate
-        const end = meeting.endDate ?? start
+        const end = meeting.endDate ?? ''
 
         const duration = this.calculateDuration(start, end)
 

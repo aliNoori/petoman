@@ -32,7 +32,14 @@ export class TagController {
     update(@Param('id') id: string, @Body() dto: UpdateTagDto) {
         return this.tagService.update(id, dto);
     }
-
+    @Patch(':id/increment')
+    incrementCount(@Param('id') id: string) {
+        return this.tagService.incrementCount(id);
+    }
+    @Patch(':id/decrement')
+    decrementCount(@Param('id') id: string) {
+        return this.tagService.decrementCount(id);
+    }
 
     @Delete(':id')
     remove(@Param('id') id: string) {
