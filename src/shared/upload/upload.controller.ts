@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import {extname, join} from 'path';
 import { v4 as uuid } from 'uuid';
 import { UploadService } from './upload.service';
 import { UploadType } from './file-type.enum';
@@ -15,7 +15,11 @@ import * as fs from "fs";
 // 🔧 تابع تنظیمات ذخیره‌سازی برای پوشه‌های مختلف
 export const uploadOptions = (folder: string) => ({
     storage: diskStorage({
-        destination: `./uploads/${folder}`,
+        destination: (_req, _file, cb) => {
+            // مسیر مطلق روی سرور
+            const uploadPath = join('/var/www/petoman/uploads', folder);
+            cb(null, uploadPath);
+        },
         filename: (_req, file, cb) => {
             const unique = uuid();
             let ext = extname(file.originalname);
