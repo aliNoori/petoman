@@ -3,7 +3,7 @@ import {User, UserRole} from "./entities/user.entity";
 import {Repository} from "typeorm";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
-import { InjectRepository } from '@nestjs/typeorm';
+import {InjectRepository} from '@nestjs/typeorm';
 import {Supporter} from "../../modules/supporter/public-supporters/supporter.entity";
 import * as bcrypt from "bcrypt";
 
@@ -23,7 +23,7 @@ export class UserService {
         const user = await this.userRepository.create({
             ...createUserDto,
             password: hashedPassword,
-            roles: [UserRole.SUPPORTER_ADMIN],
+            roles: [UserRole.SUPPORTER_ADMIN,UserRole.DANIM_ADMIN],
         });
         return this.userRepository.save(user);
     }
