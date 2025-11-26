@@ -23,7 +23,7 @@ export class UserService {
         const user = await this.userRepository.create({
             ...createUserDto,
             password: hashedPassword,
-            roles: [UserRole.SUPPORTER_ADMIN,UserRole.DANIM_ADMIN],
+            //roles: [UserRole.SUPPORTER_ADMIN,UserRole.DANIM_ADMIN],
         });
         return this.userRepository.save(user);
     }
