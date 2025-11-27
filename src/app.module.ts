@@ -41,6 +41,8 @@ import {roles} from "./shared/auth/guards/roles";
 import {DanimHomePageSetting} from "./modules/Danim/setting/home-page/home-page.enitity";
 import {DanimPerformanceSetting} from "./modules/Danim/setting/performance/performance-setting.entity";
 import {AppController} from "./app.controller";
+import {Notification} from "./shared/notification/notification.entity";
+import {NotificationModule} from "./shared/notification/notification.module";
 
 @Module({
     imports: [ConfigModule.forRoot({
@@ -53,7 +55,7 @@ import {AppController} from "./app.controller";
         password: 'ame@6558U',
         database: 'pet',
         entities: [
-            User,Upload,Category,CategoryTypeEntity, Message, Documentary, Donation, Faq, KindnessMeeting,
+            User,Upload,Category,CategoryTypeEntity, Message,Notification, Documentary, Donation, Faq, KindnessMeeting,
             Page, Supporter, AppearanceSetting, GeneralSetting, OpenGraphSetting,
             PaymentSetting, SchemaSetting, SeoSetting,Post,Tag,DanimPage,DanimGeneralSetting,
             DanimSeoSetting,DanimOpenGraphSetting,DanimSchemaSetting,DanimHomePageSetting,DanimPerformanceSetting
@@ -62,7 +64,7 @@ import {AppController} from "./app.controller";
     }), JwtModule.register({
         secret: process.env.JWT_SECRET || 'secret-key',
         signOptions: {expiresIn: '1d'},
-    }), AccessControlModule.forRoles(roles),UserModule,UploadModule,CategoryModule,TagModule, ConfigModule, AuthModule, MessageModule, SupporterModule,DanimModule],
+    }), AccessControlModule.forRoles(roles),UserModule,UploadModule,CategoryModule,TagModule,NotificationModule, ConfigModule, AuthModule, MessageModule, SupporterModule,DanimModule],
     controllers: [AppController],
     providers: [AppService, ChatGateway],
 })

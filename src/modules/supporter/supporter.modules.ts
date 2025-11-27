@@ -20,6 +20,7 @@ import {FaqService} from "./faqs/faq.service";
 import {PageService} from "./page-builder/page.service";
 import {SettingModule} from "./setting/setting.modules";
 import {User} from "../../shared/user/entities/user.entity";
+import {NotificationModule} from "../../shared/notification/notification.module";
 
 @Module({
     imports: [
@@ -33,6 +34,7 @@ import {User} from "../../shared/user/entities/user.entity";
             User
         ]),
         SettingModule,
+        NotificationModule
         //FileModule, // اگر فایل یا تصویر داشته باشن
         //UserModule, // اگر به کاربر وصل باشن
     ],

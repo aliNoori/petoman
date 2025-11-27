@@ -6,7 +6,7 @@ import {
     Delete,
     Param,
     Body,
-    ParseUUIDPipe, UseInterceptors, UploadedFiles, UploadedFile,
+    ParseUUIDPipe, UseInterceptors, UploadedFiles, UploadedFile, UseGuards,
 } from '@nestjs/common';
 import {KindnessService} from './kindness.service';
 import {CreateKindnessMeetingDto} from './dto/create-kindness-meeting.dto';
@@ -15,8 +15,12 @@ import {FileInterceptor} from "@nestjs/platform-express";
 import {uploadOptions} from "../../../utils/file-upload.utils";
 import {KindnessStatus} from "./kindness-meeting.entity";
 import {ACL} from "../../../shared/auth/guards/acl.decorator";
+import {CurrentUser} from "../../../shared/auth/guards/current-user.decorator";
+import {User} from "../../../shared/user/entities/user.entity";
+import {JwtAuthGuard} from "../../../shared/auth/guards/jwt-auth.guard";
 
 @Controller({path: 'kindness-meetings', version: '1'})
+@UseGuards(JwtAuthGuard)
 @ACL('create', 'supporters')
 export class KindnessController {
     constructor(private readonly kindnessService: KindnessService) {
@@ -25,9 +29,9 @@ export class KindnessController {
     @Post()
     @UseInterceptors(FileInterceptor('image', uploadOptions('kindness-meetings')) as any)
     create(@UploadedFile() file: Express.Multer.File,
-           @Body() dto: CreateKindnessMeetingDto)
+           @Body() dto: CreateKindnessMeetingDto,@CurrentUser() user: User)
     {
-        return this.kindnessService.create(dto, file);
+        return this.kindnessService.create(dto,user, file);
     }
 
     @Get()

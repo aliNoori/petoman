@@ -6,16 +6,19 @@ import { CreateSupporterDto } from './dto/create-supporter.dto';
 import { UpdateSupporterDto } from './dto/update-supporter.dto';
 import {User, UserRole} from "../../../shared/user/entities/user.entity";
 import * as bcrypt from 'bcrypt';
+import {NotificationService} from "../../../shared/notification/notification.service";
+import {NotificationType} from "../../../shared/notification/notification.entity";
 @Injectable()
 export class SupporterService {
     constructor(
+        private notifService: NotificationService,
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
         @InjectRepository(Supporter)
         private readonly supporterRepo: Repository<Supporter>
     ) {}
 
-    async create(dto: CreateSupporterDto) {
+    async create(dto: CreateSupporterDto,onlineUser) {
         let user: User | null;
 
         if (!dto.email && !dto.phone) {
@@ -71,6 +74,15 @@ export class SupporterService {
             address: dto.address,
             notes: dto.notes,
             user,
+        });
+
+        await this.notifService.create({
+            userId: onlineUser.id,
+            type: NotificationType.IN_APP,
+            title: 'حامی جدید',
+            message: 'حامی با موفقیت ثبت شد.',
+            icon:'ti ti-user-plus text-blue-600',
+            color:'bg-blue-100'
         });
 
         return this.supporterRepo.save(supporter);

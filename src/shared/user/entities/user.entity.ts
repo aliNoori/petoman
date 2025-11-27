@@ -4,10 +4,11 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
-    OneToOne,
+    OneToOne, OneToMany,
 } from 'typeorm';
 import { Supporter} from "../../../modules/supporter/public-supporters/supporter.entity";
 import {IsOptional, IsString} from "class-validator";
+import {Notification} from "../../notification/notification.entity";
 
 export enum UserRole {
     //USER = 'user',
@@ -80,4 +81,7 @@ export class User {
     // ✅ ارتباط با Supporter
     @OneToOne(() => Supporter, (supporter) => supporter.user)
     supporterProfile: Supporter;
+
+    @OneToMany(() => Notification, (notification) => notification.user)
+    notifications: Notification[];
 }

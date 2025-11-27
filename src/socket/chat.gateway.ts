@@ -123,4 +123,20 @@ export class ChatGateway {
   }
 
 
+  sendNotification(userId: string, payload: any) {
+    console.log('userId',userId)
+    console.log('this.connectedUsers',this.connectedUsers)
+    const socketId = this.connectedUsers.get(String(userId));
+
+    if (!socketId) {
+      console.log(`⚠ کاربر ${userId} آنلاین نیست، نوتیف ذخیره شد.`);
+      return false;
+    }
+
+    this.server.to(socketId).emit('notification', payload);
+    return true;
+  }
+
+
+
 }

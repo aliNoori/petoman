@@ -32,13 +32,13 @@ export class SupporterController {
         private readonly supporterService: SupporterService) {}
 
     @Post()
-    create(@Body() dto: CreateSupporterDto/*,@CurrentUser() user: User*/) {
+    create(@Body() dto: CreateSupporterDto,@CurrentUser() user: User) {
         //const permission = this.rolesBuilder.can(user.roles).createAny('supporters');
         /*if (!permission.granted) {
             throw new ForbiddenException('You do not have permission to create users');
         }*/
 
-        return this.supporterService.create(dto);
+        return this.supporterService.create(dto,user);
     }
     @Get()
     findAll() {

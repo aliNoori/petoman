@@ -5,10 +5,13 @@ import { Donation} from "./donation.entity";
 import { Supporter} from "../public-supporters/supporter.entity";
 import {KindnessMeeting} from "../kindness-meeting/kindness-meeting.entity";
 import {CreateDonationDto} from "./dto/create-donation.dto";
+import {NotificationType} from "../../../shared/notification/notification.entity";
+import {NotificationService} from "../../../shared/notification/notification.service";
 
 @Injectable()
 export class DonationService {
     constructor(
+        private notifService: NotificationService,
         @InjectRepository(Donation)
         private readonly donationRepo: Repository<Donation>,
         @InjectRepository(Supporter)
@@ -17,7 +20,7 @@ export class DonationService {
         private readonly kindnessMeetingRepo: Repository<KindnessMeeting>,
     ) {}
 
-    async create(dto: CreateDonationDto) {
+    async create(dto: CreateDonationDto,user) {
         const supporter = await this.supporterRepo.findOne({ where: { id: dto.supporterId } });
         if (!supporter) throw new NotFoundException('حامی پیدا نشد');
 
@@ -36,6 +39,15 @@ export class DonationService {
             time: dto.time,
             supporter,
             kindnessMeeting,
+        });
+
+        await this.notifService.create({
+            userId: user.id,
+            type: NotificationType.IN_APP,
+            title: 'کمک جدید',
+            message: 'کمک با موفقیت ثبت شد.',
+            icon:'ti ti-coin text-rose-600',
+            color:'bg-rose-100'
         });
 
         return this.donationRepo.save(donation);

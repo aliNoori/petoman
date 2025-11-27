@@ -11,9 +11,12 @@ import {KindnessMeetingResponseDto} from "./dto/kindness-meeting-response.dto";
 import {plainToInstance} from "class-transformer";
 import * as fs from 'fs'
 import * as path from 'path'
+import {NotificationType} from "../../../shared/notification/notification.entity";
+import {NotificationService} from "../../../shared/notification/notification.service";
 @Injectable()
 export class KindnessService {
     constructor(
+        private notifService: NotificationService,
         @InjectRepository(KindnessMeeting)
         private readonly kindnessRepo: Repository<KindnessMeeting>,
         private readonly configService: ConfigService
@@ -21,9 +24,18 @@ export class KindnessService {
     ) {
     }
 
-    async create(dto: CreateKindnessMeetingDto, file?: Express.Multer.File) {
+    async create(dto: CreateKindnessMeetingDto,user, file?: Express.Multer.File) {
 
         const meeting = this.kindnessRepo.create(this.mapDtoToEntity(dto, file))
+
+        await this.notifService.create({
+            userId: user.id,
+            type: NotificationType.IN_APP,
+            title: 'قرار مهربانی جدید',
+            message: 'قرار مهربانی با موفقیت ثبت شد.',
+            icon:'ti ti-check text-green-600',
+            color:'bg-green-100'
+        });
         return this.kindnessRepo.save(meeting)
     }
 

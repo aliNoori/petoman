@@ -5,17 +5,20 @@ import {Post} from "./post.entity";
 import {Category} from "../../../shared/category/category.entity";
 import {CreatePostDto} from "./dto/create-post.dto";
 import {UpdatePostDto} from "./dto/update-post.dto";
+import {NotificationType} from "../../../shared/notification/notification.entity";
+import {NotificationService} from "../../../shared/notification/notification.service";
 
 @Injectable()
 export class PostService {
     constructor(
+        private notifService: NotificationService,
         @InjectRepository(Post)
         private readonly postRepo: Repository<Post>,
         @InjectRepository(Category)
         private readonly categoryRepo: Repository<Category>,
     ) {}
 
-    async create(dto: CreatePostDto) {
+    async create(dto: CreatePostDto,onlineUser) {
 
         let categories: Category[] = [];
         if (dto.categories && dto.categories.length > 0) {
@@ -43,6 +46,15 @@ export class PostService {
             schemaType: dto.schemaType,
             publishDate: dto.publishDate,
             categories, // 👈 دسته‌بندی‌ها با نام و id
+        });
+
+        await this.notifService.create({
+            userId: onlineUser.id,
+            type: NotificationType.POST,
+            title: 'پست جدید',
+            message: 'پست جدید با موفقیت ثبت شد.',
+            icon:'ti ti-check text-green-600',
+            color:'bg-green-100'
         });
 
         return this.postRepo.save(post);
