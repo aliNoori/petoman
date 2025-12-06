@@ -12,25 +12,27 @@ import { v4 as uuid } from 'uuid';
 import { UploadService } from './upload.service';
 import { UploadType } from './file-type.enum';
 import * as fs from "fs";
-// 🔧 تابع تنظیمات ذخیره‌سازی برای پوشه‌های مختلف
+// مسیر پایه برای همه آپلودها
+const BASE_UPLOAD_PATH = '/var/www/petoman/uploads';
+
 export const uploadOptions = (folder: string) => ({
     storage: diskStorage({
         destination: (_req, _file, cb) => {
-            // مسیر مطلق روی سرور
-            const uploadPath = join('/var/www/petoman/uploads', folder);
+            const uploadPath = join(BASE_UPLOAD_PATH, folder);
+            // اگر پوشه وجود ندارد بساز
+            if (!fs.existsSync(uploadPath)) {
+                fs.mkdirSync(uploadPath, { recursive: true });
+            }
             cb(null, uploadPath);
         },
         filename: (_req, file, cb) => {
             const unique = uuid();
             let ext = extname(file.originalname);
-
             if (!ext) {
                 const mimeExt = file.mimetype?.split('/')[1] || 'bin';
                 ext = '.' + mimeExt;
             }
-
-            const filename = `${unique}${ext}`;
-            cb(null, filename);
+            cb(null, `${unique}${ext}`);
         },
     }),
 });
@@ -86,6 +88,72 @@ export class UploadController {
         const upload = await this.uploadService.saveFile(file, UploadType.VIDEO);
         return { url: upload.url, id: upload.id };
     }
+
+    //chunk
+    @Post('video-chunk')
+    @UseInterceptors(FileInterceptor('chunk', {
+        storage: diskStorage({
+            destination: join(BASE_UPLOAD_PATH, 'chunks'),
+            filename: (req, file, cb) => {
+                const { index, videoId } = req.body;
+                const id = videoId || uuid();
+                cb(null, `${id}-${index}`);
+            }
+        }),
+    }) as any)
+    async uploadVideoChunk(
+        @UploadedFile() file: Express.Multer.File,
+        @Body('index') index: string,
+        @Body('total') total: string,
+        @Body('videoId') videoId?: string
+    ) {
+        const id = videoId || uuid();
+        return { success: true, videoId: id };
+    }
+
+
+    @Post('video-merge')
+    async mergeChunks(@Body('videoId') videoId: string) {
+        const chunkDir = join(BASE_UPLOAD_PATH, 'chunks');
+        const finalPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}.mp4`);
+
+        const chunkFiles = fs.readdirSync(chunkDir)
+            .filter(f => f.startsWith(videoId))
+            .sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
+
+        return new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalPath);
+
+            writeStream.on('error', reject);
+            writeStream.on('close', () => {
+                // پاکسازی chunkها
+                for (const chunkFile of chunkFiles) {
+                    const chunkPath = join(chunkDir, chunkFile);
+                    try {
+                        fs.unlinkSync(chunkPath);
+                    } catch (err) {
+                        console.error('خطا در حذف chunk:', err);
+                    }
+                }
+                resolve({ url: `/uploads/videos/${videoId}.mp4` });
+            });
+
+            const appendNext = (index: number) => {
+                if (index >= chunkFiles.length) {
+                    writeStream.end();
+                    return;
+                }
+                const chunkPath = join(chunkDir, chunkFiles[index]);
+                const readStream = fs.createReadStream(chunkPath);
+                readStream.pipe(writeStream, { end: false });
+                readStream.on('end', () => appendNext(index + 1));
+                readStream.on('error', reject);
+            };
+
+            appendNext(0);
+        });
+    }
+
 
     // 📄 فایل عمومی (pdf, docx, zip و ...)
     @Post('file')
