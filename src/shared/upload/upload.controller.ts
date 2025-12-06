@@ -118,7 +118,7 @@ export class UploadController {
         const finalPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}.mp4`);
 
         const chunkFiles = fs.readdirSync(chunkDir)
-            .filter(f => f.startsWith(videoId))
+            //.filter(f => f.startsWith(videoId))
             .sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
 
         return new Promise((resolve, reject) => {
