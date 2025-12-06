@@ -45,6 +45,9 @@ export class Notification {
     @Column({ nullable: true })
     color: string;
 
+    @Column({ nullable: true })
+    panelType: string;
+
     @CreateDateColumn()
     createdAt: Date;
 

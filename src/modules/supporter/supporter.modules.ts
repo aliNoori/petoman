@@ -10,13 +10,10 @@ import {DonationService} from "./donation/donation.service";
 import {KindnessService} from "./kindness-meeting/kindness.service";
 import {SupporterService} from "./public-supporters/supporter.service";
 import {Documentary} from "./documentation/documentary.entity";
-import {Faq} from "./faqs/faq.entity";
 import {Page} from "./page-builder/page.entity";
 import {DocumentaryController} from "./documentation/documentary.controller";
-import {FaqController} from "./faqs/faq.controller";
 import {PageController} from "./page-builder/page.controller";
 import {DocumentaryService} from "./documentation/documentary.service";
-import {FaqService} from "./faqs/faq.service";
 import {PageService} from "./page-builder/page.service";
 import {SettingModule} from "./setting/setting.modules";
 import {User} from "../../shared/user/entities/user.entity";
@@ -27,7 +24,6 @@ import {NotificationModule} from "../../shared/notification/notification.module"
         TypeOrmModule.forFeature([
             Documentary,
             Donation,
-            Faq,
             KindnessMeeting,
             Page,
             Supporter,
@@ -41,7 +37,6 @@ import {NotificationModule} from "../../shared/notification/notification.module"
     controllers: [
         DocumentaryController,
         DonationController,
-        FaqController,
         KindnessController,
         PageController,
         SupporterController,
@@ -49,7 +44,6 @@ import {NotificationModule} from "../../shared/notification/notification.module"
     providers: [
         DocumentaryService,
         DonationService,
-        FaqService,
         KindnessService,
         PageService,
         SupporterService,

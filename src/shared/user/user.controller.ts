@@ -7,8 +7,11 @@ import {UpdateUserDto} from "./dto/update-user.dto";
 import {SetOnlineDto} from "./dto/set-online.dto";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
+import {CurrentUser} from "../auth/guards/current-user.decorator";
+import {User} from "./entities/user.entity";
 
 @ApiTags('Users')
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
@@ -17,16 +20,16 @@ export class UserController {
     create(@Body() createUserDto: CreateUserDto) {
         return this.userService.create(createUserDto);
     }
-    @UseGuards(JwtAuthGuard)
-    @Get('me')
-    async getMe(@Req() req: any) {
 
-        return this.userService.findOne(req.user.id);
+    @Get('me')
+    async getMe(@CurrentUser() user: User) {
+
+        return this.userService.findOne(user.id);
     }
     @ApiResponse({ status: 200, description: 'لیست کاربران', type: [CreateUserDto] })
     @Get()
-    findAll() {
-        return this.userService.findAll();
+    findAll(@CurrentUser() user: User) {
+        return this.userService.findFiltered(user);
     }
 
     @Get('supporters-with-donations')

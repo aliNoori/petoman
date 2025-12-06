@@ -43,6 +43,7 @@ export class CategoryService {
 
         const category = this.repo.create({
             title: dto.title,
+            contentType:dto.contentType,
             description: dto.description,
             color:dto.color,
             cover:dto.cover??'',
@@ -60,7 +61,11 @@ export class CategoryService {
             category.parent = parent;
         }
 
-        return this.repo.save(category);
+        const saved = await this.repo.save(category);
+        return this.repo.findOne({
+            where: { id: saved.id },
+            relations: ['parent', 'type']
+        });
     }
 
     async update(id: string, dto: UpdateCategoryDto) {
@@ -90,11 +95,13 @@ export class CategoryService {
 
         // سایر فیلدها
         if (dto.title) cat.title = dto.title;
+        if (dto.contentType) cat.contentType = dto.contentType;
         if (dto.description !== undefined) cat.description = dto.description;
         if (dto.isActive !== undefined) cat.isActive = dto.isActive;
         if (dto.sortOrder !== undefined) cat.sortOrder = dto.sortOrder;
         if (dto.cover !== undefined) cat.cover = dto.cover;
         if (dto.logo !== undefined) cat.logo = dto.logo;
+        if (dto.color !== undefined) cat.color = dto.color;
         if (dto.slug) cat.slug = await this.ensureUniqueSlug(dto.slug, id);
         else if (dto.title) cat.slug = await this.ensureUniqueSlug(dto.title, id);
 
@@ -121,19 +128,29 @@ export class CategoryService {
         return this.repo.remove(c);
     }
 
-    async findAllFlat(filters?: { typeId?: string; activeOnly?: boolean }) {
+    async findAllFlat(filters?: { typeId?: string; contentType?: string; activeOnly?: boolean }) {
         const qb = this.repo.createQueryBuilder('c')
             .leftJoinAndSelect('c.type', 'type')
+            .leftJoinAndSelect('c.parent', 'parent')
+            .leftJoinAndSelect('c.posts', 'posts')
             .orderBy('c.sortOrder', 'ASC');
 
-        if (filters?.typeId) qb.andWhere('c.typeId = :typeId', { typeId: filters.typeId });
-        if (filters?.activeOnly) qb.andWhere('c.isActive = true');
+        if (filters?.typeId)
+            qb.andWhere('c.typeId = :typeId', { typeId: filters.typeId });
+
+        if (filters?.activeOnly)
+            qb.andWhere('c.isActive = true');
+
+        if (filters?.contentType)
+            qb.andWhere('c.contentType = :contentType', { contentType: filters.contentType });
+
         qb.andWhere('c.deletedAt IS NULL');
+
         return qb.getMany();
     }
 
 
-    async findTreeByType(typeId?: string) {
+    async findTreeByType(typeId?: string, contentType?: string) {
         const qb = this.repo.createQueryBuilder('c')
             .leftJoinAndSelect('c.children', 'children')
             .leftJoinAndSelect('c.type', 'type')
@@ -144,6 +161,10 @@ export class CategoryService {
             .orderBy('c.sortOrder', 'ASC');
 
         if (typeId) qb.andWhere('type.id = :typeId', { typeId });
+
+        if (contentType) {
+            qb.andWhere('c.contentType = :contentType', { contentType });
+        }
 
         const roots = await qb.getMany();
         const trees = await Promise.all(

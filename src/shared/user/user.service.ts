@@ -1,6 +1,6 @@
-import {Injectable, Logger, NotFoundException} from '@nestjs/common';
+import {ForbiddenException, Injectable, Logger, NotFoundException} from '@nestjs/common';
 import {User, UserRole} from "./entities/user.entity";
-import {Repository} from "typeorm";
+import {In, Raw, Repository} from "typeorm";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {InjectRepository} from '@nestjs/typeorm';
@@ -23,13 +23,42 @@ export class UserService {
         const user = await this.userRepository.create({
             ...createUserDto,
             password: hashedPassword,
-            //roles: [UserRole.SUPPORTER_ADMIN,UserRole.DANIM_ADMIN],
         });
         return this.userRepository.save(user);
     }
-    findAll(): Promise<User[]> {
+    /*findAll(): Promise<User[]> {
         return this.userRepository.find();
+    }*/
+
+    async findFiltered(currentUser: any) {
+        const accessMap = {
+            admin: null,
+            danim_admin: ['danim_subscriber','danim_admin','danim_author','danim_editor'],
+            supporter_admin: ['hamian_subscriber','supporter_admin','supporter_subscriber'],
+            film_admin: ['film_subscriber','film_admin'],
+            vet_admin: ['vet_subscriber','vet_admin'],
+            market_admin: ['market_subscriber','market_admin']
+        };
+
+        const userRoles: string[] = currentUser.roles;
+
+        if (userRoles.includes('admin')) {
+            return this.userRepository.find({ order: { createdAt: 'DESC' } });
+        }
+
+        const managerRole = userRoles.find(r => accessMap[r]);
+        if (!managerRole) throw new ForbiddenException('شما دسترسی مشاهده کاربران را ندارید');
+
+        const allowedRoles = accessMap[managerRole];
+
+        return this.userRepository.find({
+            where: {
+                roles: Raw(alias => `${alias} ?| array[:...roles]`, { roles: allowedRoles })
+            },
+            order: { createdAt: 'DESC' }
+        });
     }
+
     async getSupportersWithDonations() {
         const supporters = await this.supporterRepo.find({
             relations: ['user', 'donations', 'donations.kindnessMeeting'],

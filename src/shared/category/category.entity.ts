@@ -15,6 +15,22 @@ import {
 } from 'typeorm';
 import { CategoryTypeEntity } from './category-type.entity';
 import {Post} from '../../modules/Danim/post/post.entity'
+import {Movie} from "../../modules/film/content/movie/movie.entity";
+import {Series} from "../../modules/film/content/series/entities/series.entity";
+import {FilmPost} from "../../modules/film/post/post.entity";
+export enum ContentType {
+    POST = 'post',
+    NEWS = 'news',
+    PRODUCT = 'product',
+    MOVIE = 'movie',
+    SERIES = 'series',
+    BOTH = 'both',
+    HAMIAN='hamian',
+    DANIM='danim',
+    FILM='film',
+    VET='vet',
+    MARKET='market'
+}
 @Entity('categories')
 @Tree('closure-table')
 export class Category {
@@ -28,6 +44,13 @@ export class Category {
     @Column({ length: 160 })
     slug: string;
 
+    @Column({
+        type: "enum",
+        enum: ContentType,
+        nullable: true
+    })
+    contentType: ContentType | null;
+
     @Column({ type: 'text', nullable: true })
     description?: string;
 
@@ -40,6 +63,14 @@ export class Category {
     @ManyToMany(() => Post, post => post.categories)
     posts: Post[];
 
+    @ManyToMany(() => FilmPost, post => post.category)
+    film_posts: FilmPost[];
+
+    @OneToMany(() => Movie, movie => movie.category)
+    movies: Movie[];
+
+    @OneToMany(() => Series, series => series.category)
+    series: Series[];
 
     @TreeParent()
     parent?: Category | null;

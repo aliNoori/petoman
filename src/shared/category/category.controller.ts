@@ -12,14 +12,15 @@ export class CategoryController {
     create(@Body() dto: CreateCategoryDto) { return this.svc.create(dto); }
 
     @Get()
-    findAll(@Query('typeId') type?: string, @Query('active') active?: string) {
-        const filters = { typeId: type as any, activeOnly: active === '1' };
+    findAll(@Query('typeId') type?: string,
+            @Query('contentType') contentType?: string, @Query('activeOnly') active?: string) {
+        const filters = { typeId: type as any,contentType:contentType, activeOnly: active === '1' };
         return this.svc.findAllFlat(filters);
     }
 
     @Get('tree')
-    tree(@Query('typeId') type?: string) {
-        return this.svc.findTreeByType(type as any);
+    tree(@Query('typeId') type?: string,@Query('contentType') contentType?: string) {
+        return this.svc.findTreeByType(type as any,contentType);
     }
 
     @Get(':id/ancestors')

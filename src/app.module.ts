@@ -10,7 +10,7 @@ import {Message} from "./socket/message/message.entity";
 import {MessageModule} from './socket/message/message.module';
 import {JwtModule} from "@nestjs/jwt";
 import {SupporterModule} from "./modules/supporter/supporter.modules";
-import {Faq} from "./modules/supporter/faqs/faq.entity";
+import {Faq} from "./shared/faq/faq.entity";
 import {Documentary} from "./modules/supporter/documentation/documentary.entity";
 import {Donation} from "./modules/supporter/donation/donation.entity";
 import {KindnessMeeting} from "./modules/supporter/kindness-meeting/kindness-meeting.entity";
@@ -43,6 +43,23 @@ import {DanimPerformanceSetting} from "./modules/Danim/setting/performance/perfo
 import {AppController} from "./app.controller";
 import {Notification} from "./shared/notification/notification.entity";
 import {NotificationModule} from "./shared/notification/notification.module";
+import {FilmModule} from "./modules/film/film.module";
+import {Movie} from "./modules/film/content/movie/movie.entity";
+import {TagType} from "./shared/tag/tag-type.entity";
+import {Series} from "./modules/film/content/series/entities/series.entity";
+import {Season} from "./modules/film/content/series/entities/season.entity";
+import {Episode} from "./modules/film/content/series/entities/episode.entity";
+import {FaqType} from "./shared/faq/faq-type.entity";
+import {FaqModule} from "./shared/faq/faq.module";
+import {FilmPage} from "./modules/film/page/page.entity";
+import {FilmPost} from "./modules/film/post/post.entity";
+import {Comment} from "./modules/film/comment/comment.entity";
+import {FilmGeneralSetting} from "./modules/film/setting/general/entities/general-setting.entity";
+import {FilmAdvanceSetting} from "./modules/film/setting/general/entities/advance-setting.entity";
+import {FilmSeoSetting} from "./modules/film/setting/general/entities/seo-setting.entity";
+import {FilmApiSetting} from "./modules/film/setting/general/entities/api-setting.entity";
+import {FilmSocialSetting} from "./modules/film/setting/general/entities/social-setting.entity";
+import {FilmOpengraphSetting} from "./modules/film/setting/general/entities/opengraph-setting.entity";
 
 @Module({
     imports: [ConfigModule.forRoot({
@@ -55,16 +72,22 @@ import {NotificationModule} from "./shared/notification/notification.module";
         password: 'ame@6558U',
         database: 'pet',
         entities: [
-            User,Upload,Category,CategoryTypeEntity, Message,Notification, Documentary, Donation, Faq, KindnessMeeting,
+            User,Upload,Category,CategoryTypeEntity, Message,Notification, Documentary, Donation, Faq,FaqType, KindnessMeeting,
             Page, Supporter, AppearanceSetting, GeneralSetting, OpenGraphSetting,
-            PaymentSetting, SchemaSetting, SeoSetting,Post,Tag,DanimPage,DanimGeneralSetting,
-            DanimSeoSetting,DanimOpenGraphSetting,DanimSchemaSetting,DanimHomePageSetting,DanimPerformanceSetting
+            PaymentSetting, SchemaSetting, SeoSetting,Post,Tag,TagType,DanimPage,DanimGeneralSetting,
+            DanimSeoSetting,DanimOpenGraphSetting,DanimSchemaSetting,DanimHomePageSetting,
+            DanimPerformanceSetting,Movie,Series,Season,Episode,FilmPage,FilmPost,Comment,
+            FilmGeneralSetting, FilmAdvanceSetting,
+            FilmSeoSetting,
+            FilmApiSetting,
+            FilmSocialSetting,
+            FilmOpengraphSetting
         ], // یا از autoLoadEntities استفاده کن
         synchronize: true, // فقط برای توسعه، نه تولید!
     }), JwtModule.register({
         secret: process.env.JWT_SECRET || 'secret-key',
         signOptions: {expiresIn: '1d'},
-    }), AccessControlModule.forRoles(roles),UserModule,UploadModule,CategoryModule,TagModule,NotificationModule, ConfigModule, AuthModule, MessageModule, SupporterModule,DanimModule],
+    }), AccessControlModule.forRoles(roles),UserModule,UploadModule,CategoryModule,TagModule,FaqModule,NotificationModule, ConfigModule, AuthModule, MessageModule, SupporterModule,DanimModule,FilmModule],
     controllers: [AppController],
     providers: [AppService, ChatGateway],
 })

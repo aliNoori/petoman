@@ -47,9 +47,15 @@ export class NotificationService {
         );
     }
 
-    async findUserNotifications(userId: string) {
+    async findUserNotifications(userId: string, panelType?: string) {
+        const where: any = { userId };
+
+        if (panelType) {
+            where.panelType = panelType;
+        }
+
         return this.repo.find({
-            where: { userId },
+            where,
             order: { createdAt: 'DESC' },
         });
     }

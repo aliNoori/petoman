@@ -54,7 +54,8 @@ export class PostService {
             title: 'پست جدید',
             message: 'پست جدید با موفقیت ثبت شد.',
             icon:'ti ti-check text-green-600',
-            color:'bg-green-100'
+            color:'bg-green-100',
+            panelType:'danim'
         });
 
         return this.postRepo.save(post);

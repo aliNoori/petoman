@@ -46,14 +46,14 @@ export class SupporterService {
                     email: dto.email,
                     phoneNumber: dto.phone,
                     password: hashedPassword,
-                    roles: [UserRole.SUPPORTER],
+                    roles: [UserRole.HAMIAN_SUBSCRIBER],
                 });
                 user = await this.userRepo.save(user);
             }
         }
 
-        if (!user.roles.includes(UserRole.SUPPORTER)) {
-            user.roles.push(UserRole.SUPPORTER);
+        if (!user.roles.includes(UserRole.SUPPORTER_SUBSCRIBER)) {
+            user.roles.push(UserRole.SUPPORTER_SUBSCRIBER);
             await this.userRepo.save(user);
         }
 
@@ -82,7 +82,8 @@ export class SupporterService {
             title: 'حامی جدید',
             message: 'حامی با موفقیت ثبت شد.',
             icon:'ti ti-user-plus text-blue-600',
-            color:'bg-blue-100'
+            color:'bg-blue-100',
+            panelType:'hamian'
         });
 
         return this.supporterRepo.save(supporter);

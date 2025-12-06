@@ -4,10 +4,15 @@ import {CreateDonationDto} from "./dto/create-donation.dto";
 import {CurrentUser} from "../../../shared/auth/guards/current-user.decorator";
 import {User} from "../../../shared/user/entities/user.entity";
 import {JwtAuthGuard} from "../../../shared/auth/guards/jwt-auth.guard";
+import {ACL} from "../../../shared/auth/guards/acl.decorator";
+import {ResourceGuard} from "../../../shared/auth/guards/resource.guard";
+import {ApiTags} from "@nestjs/swagger";
 
 
+@ApiTags('donations')
+@UseGuards(JwtAuthGuard,ResourceGuard)
+@ACL('create','supporters')
 @Controller({path: 'donations', version: '1'})
-@UseGuards(JwtAuthGuard)
 export class DonationController {
     constructor(private readonly donationService: DonationService) {}
 

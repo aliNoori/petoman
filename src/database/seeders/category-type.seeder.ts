@@ -5,6 +5,7 @@ async function seed() {
     const repo = AppDataSource.getRepository(CategoryTypeEntity);
 
     const types = [
+        { name: 'kindness-meeting', displayName: 'قرار مهربانی' },
         { name: 'document', displayName: 'مستندات' },
         { name: 'film', displayName: 'فیلم‌ها' },
         { name: 'faq', displayName: 'سؤالات متداول' },

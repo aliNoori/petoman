@@ -47,7 +47,8 @@ export class DonationService {
             title: 'کمک جدید',
             message: 'کمک با موفقیت ثبت شد.',
             icon:'ti ti-coin text-rose-600',
-            color:'bg-rose-100'
+            color:'bg-rose-100',
+            panelType:'hamian'
         });
 
         return this.donationRepo.save(donation);

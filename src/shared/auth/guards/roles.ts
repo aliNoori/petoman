@@ -102,12 +102,12 @@ roles
 
 // -------------------- Editor --------------------
 roles
-    .grant(UserRole.Editor)
+    .grant(UserRole.DANIM_Editor)
     .updateAny('posts')
     .updateAny('pages');
 
 // -------------------- Author --------------------
 roles
-    .grant(UserRole.Author)
+    .grant(UserRole.DANIM_Author)
     .createOwn('posts')
     .updateOwn('posts');

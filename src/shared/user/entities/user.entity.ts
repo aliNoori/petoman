@@ -15,13 +15,18 @@ export enum UserRole {
     SUBSCRIBER='subscriber',
     ADMIN = 'admin',
     SUPPORTER_ADMIN = 'supporter_admin',
-    SUPPORTER = 'supporter',
+    HAMIAN_SUBSCRIBER='hamian_subscriber',
+    SUPPORTER_SUBSCRIBER = 'supporter_subscriber',
     DANIM_ADMIN = 'danim_admin',
+    DANIM_SUBSCRIBER='danim_subscriber',
     FILM_ADMIN = 'film_admin',
+    FILM_SUBSCRIBER='film_subscriber',
     MARKET_ADMIN = 'market_admin',
+    MARKET_SUBSCRIBER='market_subscriber',
     VET_ADMIN = 'vet_admin',
-    Editor='editor',
-    Author='author',
+    VET_SUBSCRIBER='vet_subscriber',
+    DANIM_Editor='danim_editor',
+    DANIM_Author='danim_author',
 
 
 }
@@ -65,7 +70,7 @@ export class User {
     @Column({ type: 'timestamp', nullable: true })
     lastSeen?: Date|null;
 
-    @Column({ type: 'simple-array', nullable: true })
+    @Column({ type: 'jsonb', nullable: true, default: [] })
     roles: UserRole[];
 
     @CreateDateColumn()

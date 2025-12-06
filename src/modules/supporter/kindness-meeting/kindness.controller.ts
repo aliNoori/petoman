@@ -18,10 +18,13 @@ import {ACL} from "../../../shared/auth/guards/acl.decorator";
 import {CurrentUser} from "../../../shared/auth/guards/current-user.decorator";
 import {User} from "../../../shared/user/entities/user.entity";
 import {JwtAuthGuard} from "../../../shared/auth/guards/jwt-auth.guard";
+import {ResourceGuard} from "../../../shared/auth/guards/resource.guard";
+import {ApiTags} from "@nestjs/swagger";
 
-@Controller({path: 'kindness-meetings', version: '1'})
-@UseGuards(JwtAuthGuard)
+@ApiTags('kindness-meetings')
+@UseGuards(JwtAuthGuard,ResourceGuard)
 @ACL('create', 'supporters')
+@Controller({path: 'kindness-meetings', version: '1'})
 export class KindnessController {
     constructor(private readonly kindnessService: KindnessService) {
     }

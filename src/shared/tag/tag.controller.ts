@@ -1,18 +1,25 @@
 // file: tag.controller.ts
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Param, Patch, Delete, Query, UseGuards} from '@nestjs/common';
 import { TagService } from './tag.service';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import {ApiTags} from "@nestjs/swagger";
+import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
+import {ResourceGuard} from "../auth/guards/resource.guard";
+import {ACL} from "../auth/guards/acl.decorator";
 
-
+@ApiTags('tags')
+@UseGuards(JwtAuthGuard/*,ResourceGuard*/)
+//@ACL('create', 'danim_pages')
 @Controller('tags')
 export class TagController {
     constructor(private readonly tagService: TagService) {}
 
 
     @Get()
-    findAll() {
-        return this.tagService.findAll();
+    findAll(@Query('typeId') type?: string,@Query('contentType') contentType?: string, @Query('active') active?: string) {
+        const filters = { typeId: type as any,contentType:contentType, activeOnly: active === '1' };
+        return this.tagService.findAllFlat(filters);
     }
 
 

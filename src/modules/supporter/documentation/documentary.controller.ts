@@ -8,7 +8,7 @@ import {
     Body,
     ParseUUIDPipe,
     UploadedFile,
-    UseInterceptors, UploadedFiles, NotFoundException,
+    UseInterceptors, UploadedFiles, NotFoundException, UseGuards,
 } from '@nestjs/common';
 import {FileFieldsInterceptor, FileInterceptor, FilesInterceptor} from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -19,7 +19,15 @@ import { UpdateDocumentaryDto } from './dto/update-documentary.dto';
 import {uploadOptions} from "../../../utils/file-upload.utils";
 import {LogBodyPipe} from "../../../utils/common/pipes/log-body.pipe";
 import {unlink} from "fs/promises";
+import {ApiTags} from "@nestjs/swagger";
+import {JwtAuthGuard} from "../../../shared/auth/guards/jwt-auth.guard";
+import {ResourceGuard} from "../../../shared/auth/guards/resource.guard";
+import {ACL} from "../../../shared/auth/guards/acl.decorator";
 
+
+@ApiTags('documentaries')
+@UseGuards(JwtAuthGuard,ResourceGuard)
+@ACL('create', 'supporters')
 @Controller({ path: 'documentaries', version: '1' })
 export class DocumentaryController {
     constructor(private readonly documentaryService: DocumentaryService) {}
