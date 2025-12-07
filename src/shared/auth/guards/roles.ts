@@ -63,6 +63,8 @@ roles
 // -------------------- SUPPORTER_ADMIN --------------------
 roles
     .grant(UserRole.SUPPORTER_ADMIN)
+    .extend(UserRole.SUPPORTER_SUBSCRIBER)
+    .extend(UserRole.HAMIAN_SUBSCRIBER)
     .readAny('supporters')
     .createAny('supporters')
     .updateAny('supporters')
@@ -72,6 +74,7 @@ roles
 // -------------------- DANIM_ADMIN --------------------
 roles
     .grant(UserRole.DANIM_ADMIN)
+    .extend(UserRole.DANIM_SUBSCRIBER)
     .createAny('danim_pages')
     .updateAny('danim_pages')
     .deleteAny('danim_pages')
@@ -85,6 +88,7 @@ roles
 // -------------------- FILM_ADMIN --------------------
 roles
     .grant(UserRole.FILM_ADMIN)
+    .extend(UserRole.FILM_SUBSCRIBER)
     .createAny('documentaries')
     .updateAny('documentaries')
     .deleteAny('documentaries');
@@ -92,22 +96,52 @@ roles
 // -------------------- MARKET_ADMIN --------------------
 roles
     .grant(UserRole.MARKET_ADMIN)
+    .extend(UserRole.MARKET_SUBSCRIBER)
     .readAny('payment_settings')
     .updateAny('payment_settings');
 
 // -------------------- VET_ADMIN --------------------
 roles
     .grant(UserRole.VET_ADMIN)
+    .extend(UserRole.VET_SUBSCRIBER)
     .updateAny('kindness_meetings');
 
 // -------------------- Editor --------------------
 roles
-    .grant(UserRole.DANIM_Editor)
+    .grant(UserRole.DANIM_EDITOR)
     .updateAny('posts')
     .updateAny('pages');
 
 // -------------------- Author --------------------
 roles
-    .grant(UserRole.DANIM_Author)
+    .grant(UserRole.DANIM_AUTHOR)
     .createOwn('posts')
     .updateOwn('posts');
+
+
+// -------------------- Subscribers --------------------
+
+roles
+    .grant(UserRole.SUPPORTER_SUBSCRIBER)
+    .readOwn('user')
+
+roles
+    .grant(UserRole.HAMIAN_SUBSCRIBER)
+    .readOwn('user')
+
+roles
+    .grant(UserRole.DANIM_SUBSCRIBER)
+    .readOwn('user')
+
+
+roles
+    .grant(UserRole.FILM_SUBSCRIBER)
+    .readOwn('user')
+
+roles
+    .grant(UserRole.MARKET_SUBSCRIBER)
+    .readOwn('user')
+
+roles
+    .grant(UserRole.VET_SUBSCRIBER)
+    .readOwn('user')

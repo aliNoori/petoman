@@ -25,8 +25,8 @@ export enum UserRole {
     MARKET_SUBSCRIBER='market_subscriber',
     VET_ADMIN = 'vet_admin',
     VET_SUBSCRIBER='vet_subscriber',
-    DANIM_Editor='danim_editor',
-    DANIM_Author='danim_author',
+    DANIM_EDITOR='danim_editor',
+    DANIM_AUTHOR='danim_author',
 
 
 }
