@@ -7,7 +7,6 @@ export class AppController {
   constructor(private readonly appService: AppService,
               private readonly messageService:MessageService) {}
 
-
   @Get('/health')
   check() {
     return { status: 'ok' };
