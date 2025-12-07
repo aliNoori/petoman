@@ -8,7 +8,9 @@ import * as path from 'path';
 // UPLOAD_PATH=/var/www/petoman/uploads   (روی سرور)
 // UPLOAD_PATH=./uploads                  (روی لوکال)
 // UPLOAD_PATH=https://cdn.mydomain.com   (برای CDN)
-const UPLOAD_PATH = process.env.UPLOAD_PATH || './uploads';
+const UPLOAD_PATH = process.env.UPLOAD_PATH || '/var/www/petoman/uploads';
+//const UPLOAD_PATH = process.env.UPLOAD_PATH || './uploads';//local
+//const UPLOAD_PATH = process.env.UPLOAD_PATH || 'https://uploads';//cdn
 
 export const uploadOptions = (folder: string) => ({
     storage: diskStorage({
