@@ -4,17 +4,17 @@ import {DanimPerformanceSettingService} from "./performance-setting.service";
 
 @Controller({ path: 'danim-settings/performance'})
 export class DanimPerformanceSettingController {
-    constructor(private readonly seoService: DanimPerformanceSettingService) {}
+    constructor(private readonly performanceService: DanimPerformanceSettingService) {}
 
     @Get()
     getSettings() {
-        return this.seoService.getAllAsObject();
+        return this.performanceService.getAllAsObject();
     }
 
     @Patch()
     updateSettings(@Body() dto: PerformanceSettingDto) {
 
-        return this.seoService.updateMany(dto.settings);
+        return this.performanceService.updateMany(dto.settings);
 
 
     }

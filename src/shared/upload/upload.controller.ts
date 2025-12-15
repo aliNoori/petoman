@@ -14,7 +14,7 @@ import { UploadType } from './file-type.enum';
 import * as fs from "fs";
 // مسیر پایه برای همه آپلودها
 const BASE_UPLOAD_PATH = '/var/www/petoman/uploads';
-
+//const BASE_UPLOAD_PATH = './uploads';
 export const uploadOptions = (folder: string) => ({
     storage: diskStorage({
         destination: (_req, _file, cb) => {

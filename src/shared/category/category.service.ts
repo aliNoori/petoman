@@ -110,11 +110,18 @@ export class CategoryService {
 
     // soft delete
     async softDelete(id: string) {
-        const c = await this.repo.findOne({ where: { id } });
-        if (!c) throw new NotFoundException('دسته پیدا نشد');
-        // تصمیم تجاری: آیا می‌خواهی فرزندان هم soft-delete شوند؟ اینجا فقط خود رکورد را soft-delete می‌کنیم.
-        return this.repo.softDelete(id);
+        const category = await this.repo.findOne({ where: { id } });
+        if (!category) throw new NotFoundException('دسته پیدا نشد');
+
+        // گرفتن تمام descendants
+        const descendants = await this.treeRepo.findDescendants(category);
+
+        // اضافه کردن خود node اصلی
+        const allToDelete = [category, ...descendants];
+
+        return this.repo.softRemove(allToDelete);
     }
+
 
     async restore(id: string) {
         const c = await this.repo.findOne({ where: { id }, withDeleted: true });

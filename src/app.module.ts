@@ -60,6 +60,12 @@ import {FilmSeoSetting} from "./modules/film/setting/general/entities/seo-settin
 import {FilmApiSetting} from "./modules/film/setting/general/entities/api-setting.entity";
 import {FilmSocialSetting} from "./modules/film/setting/general/entities/social-setting.entity";
 import {FilmOpengraphSetting} from "./modules/film/setting/general/entities/opengraph-setting.entity";
+import {PostLike} from "./modules/Danim/post/post-like.entity";
+import {APP_GUARD} from "@nestjs/core";
+import {OptionalJwtAuthGuard} from "./shared/auth/guards/jwt-auth-optional.guard";
+import {PostBookmark} from "./modules/Danim/post/post-bookmark.entity";
+import {SmsModule} from "./shared/gateways/sms/sms.module";
+import {OtpCode} from "./shared/gateways/sms/entities/otp-code.entity";
 
 @Module({
     imports: [ConfigModule.forRoot({
@@ -72,9 +78,9 @@ import {FilmOpengraphSetting} from "./modules/film/setting/general/entities/open
         password: 'ame@6558U',
         database: 'pet',
         entities: [
-            User,Upload,Category,CategoryTypeEntity, Message,Notification, Documentary, Donation, Faq,FaqType, KindnessMeeting,
+            User,Upload,Category,CategoryTypeEntity, Message,Notification,OtpCode, Documentary, Donation, Faq,FaqType, KindnessMeeting,
             Page, Supporter, AppearanceSetting, GeneralSetting, OpenGraphSetting,
-            PaymentSetting, SchemaSetting, SeoSetting,Post,Tag,TagType,DanimPage,DanimGeneralSetting,
+            PaymentSetting, SchemaSetting, SeoSetting,Post,PostLike,PostBookmark,Tag,TagType,DanimPage,DanimGeneralSetting,
             DanimSeoSetting,DanimOpenGraphSetting,DanimSchemaSetting,DanimHomePageSetting,
             DanimPerformanceSetting,Movie,Series,Season,Episode,FilmPage,FilmPost,Comment,
             FilmGeneralSetting, FilmAdvanceSetting,
@@ -87,9 +93,12 @@ import {FilmOpengraphSetting} from "./modules/film/setting/general/entities/open
     }), JwtModule.register({
         secret: process.env.JWT_SECRET || 'secret-key',
         signOptions: {expiresIn: '1d'},
-    }), AccessControlModule.forRoles(roles),UserModule,UploadModule,CategoryModule,TagModule,FaqModule,NotificationModule, ConfigModule, AuthModule, MessageModule, SupporterModule,DanimModule,FilmModule],
+    }), AccessControlModule.forRoles(roles),UserModule,SmsModule,UploadModule,CategoryModule,TagModule,FaqModule,NotificationModule, ConfigModule, AuthModule, MessageModule, SupporterModule,DanimModule,FilmModule],
     controllers: [AppController],
-    providers: [AppService, ChatGateway],
+    providers: [AppService, ChatGateway,{
+        provide: APP_GUARD,
+        useClass: OptionalJwtAuthGuard,
+    }],
 })
 export class AppModule {
 }

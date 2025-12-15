@@ -11,7 +11,7 @@ async function bootstrap() {
   // Swagger config
   const config = new DocumentBuilder()
       .setTitle('Petoman API')
-      .setDescription('لیست APIهای پروژه Petoman')
+      .setDescription('Petoman API list')
       .setVersion('1.0')
       .addBearerAuth()
       .build();
@@ -43,6 +43,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:5174',
+      'http://localhost:3002',
+      'http://localhost:6501',
       'https://dash.petoman.com'
     ],
     methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],

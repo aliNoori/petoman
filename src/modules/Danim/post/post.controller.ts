@@ -6,7 +6,7 @@ import {
     Delete,
     Param,
     Body,
-    ParseUUIDPipe, UseGuards,
+    ParseUUIDPipe, UseGuards, Req,
 } from '@nestjs/common';
 
 import { PostService } from "./post.service";
@@ -19,19 +19,21 @@ import {CurrentUser} from "../../../shared/auth/guards/current-user.decorator";
 import {User} from "../../../shared/user/entities/user.entity";
 
 @Controller({ path: 'posts', version: '1' })
-@UseGuards(JwtAuthGuard/*,ResourceGuard*/)
-//@ACL('create', 'posts')
 export class PostController {
     constructor(private readonly postService: PostService) {}
 
     @Post()
+    @UseGuards(JwtAuthGuard, ResourceGuard)
+    @ACL('create', 'posts')
     async create(@Body() dto: CreatePostDto,@CurrentUser() user: User) {
         return this.postService.create(dto,user);
     }
 
     @Get()
-    findAll() {
-        return this.postService.findAll();
+    async findAll(@Req() req) {
+        const user = req.user as User | undefined;
+        const userId = user?.id;
+        return this.postService.findAll(userId);
     }
 
     @Get(':id')
@@ -40,6 +42,8 @@ export class PostController {
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard, ResourceGuard)
+    @ACL('create', 'posts')
     async update(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() dto: UpdatePostDto,
@@ -48,6 +52,8 @@ export class PostController {
     }
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard, ResourceGuard)
+    @ACL('create', 'posts')
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.postService.remove(id);
     }
@@ -58,15 +64,29 @@ export class PostController {
         return this.postService.incrementViews(id);
     }
 
-    // 👇 افزایش لایک
-    @Patch(':id/likes')
-    incrementLikes(@Param('id', ParseUUIDPipe) id: string) {
-        return this.postService.incrementLikes(id);
+    @UseGuards(JwtAuthGuard)
+    @Patch(':id/like')
+    async toggleLike(
+        @Param('id', ParseUUIDPipe) id: string,
+        @CurrentUser() user: User,
+    ) {
+        const userId = user.id;
+        if (!userId) {
+            throw new Error('User not authenticated');
+        }
+        return this.postService.toggleLike(id, userId);
     }
 
-    // 👇 کاهش لایک
-    @Patch(':id/unlike')
-    decrementLikes(@Param('id', ParseUUIDPipe) id: string) {
-        return this.postService.decrementLikes(id);
+    @UseGuards(JwtAuthGuard)
+    @Patch(':id/bookmark')
+    async toggleBookmark(
+        @Param('id', ParseUUIDPipe) id: string,
+        @CurrentUser() user: User,
+    ) {
+        const userId = user.id;
+        if (!userId) {
+            throw new Error('User not authenticated');
+        }
+        return this.postService.toggleBookmark(id, userId);
     }
 }

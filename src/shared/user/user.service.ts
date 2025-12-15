@@ -18,7 +18,9 @@ export class UserService {
     ) {}
     async create(createUserDto: CreateUserDto): Promise<User> {
         //this.logger.log(`${createUserDto.avatar}`);
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+        let hashedPassword='12345678';
+        if(createUserDto.password)
+        hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
         const user = await this.userRepository.create({
             ...createUserDto,
@@ -99,6 +101,12 @@ export class UserService {
         return user;
     }
 
+    async findByPhoneNumber(phoneNumber: string): Promise<User | null> {
+        return this.userRepository.findOne({ where: { phoneNumber } } as any);
+    }
+    async findById(id: string): Promise<User | null> {
+        return this.userRepository.findOne({ where: { id } });
+    }
     async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
         await this.userRepository.update(id, updateUserDto);
         return this.findOne(id);

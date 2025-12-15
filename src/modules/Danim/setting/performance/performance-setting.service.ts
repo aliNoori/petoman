@@ -6,30 +6,30 @@ import {DanimPerformanceSetting} from "./performance-setting.entity";
 export class DanimPerformanceSettingService {
     constructor(
         @InjectRepository(DanimPerformanceSetting)
-        private readonly seoRepo: Repository<DanimPerformanceSetting>,
+        private readonly performanceRepo: Repository<DanimPerformanceSetting>,
     ) {}
 
     async set(key: string, value: Record<string, any>) {
         if (!key) throw new Error('Key is required');
 
-        let setting = await this.seoRepo.findOne({ where: { key } });
+        let setting = await this.performanceRepo.findOne({ where: { key } });
 
         if (!setting) {
-            setting = this.seoRepo.create({ key, value });
+            setting = this.performanceRepo.create({ key, value });
         } else {
             setting.value = value;
         }
 
-        return this.seoRepo.save(setting);
+        return this.performanceRepo.save(setting);
     }
 
     async get(key: string) {
-        const setting = await this.seoRepo.findOne({ where: { key } });
+        const setting = await this.performanceRepo.findOne({ where: { key } });
         return setting ? setting.value : null;
     }
 
     async getAllAsObject() {
-        const settings = await this.seoRepo.find();
+        const settings = await this.performanceRepo.find();
         return settings.reduce((obj, item) => {
             obj[item.key] = item.value;
             return obj;

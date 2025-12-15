@@ -3,9 +3,11 @@ import {
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
-    UpdateDateColumn, ManyToMany, JoinTable,
+    UpdateDateColumn, ManyToMany, JoinTable, ManyToOne, OneToMany,
 } from 'typeorm';
 import {Category} from "../../../shared/category/category.entity";
+import {User} from "../../../shared/user/entities/user.entity";
+import {PostLike} from "./post-like.entity";
 
 export enum PostStatus {
     DRAFT = 'draft',
@@ -87,5 +89,11 @@ export class Post {
         inverseJoinColumn: { name: 'categoryId', referencedColumnName: 'id' },
     })
     categories: Category[];
+
+    @ManyToOne(() => User, user => user.posts, { eager: true })
+    author: User;
+
+    @OneToMany(() => PostLike, like => like.post)
+    likesRelations: PostLike[];
 
 }

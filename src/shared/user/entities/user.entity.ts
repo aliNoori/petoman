@@ -9,6 +9,8 @@ import {
 import { Supporter} from "../../../modules/supporter/public-supporters/supporter.entity";
 import {IsOptional, IsString} from "class-validator";
 import {Notification} from "../../notification/notification.entity";
+import {Post} from "../../../modules/Danim/post/post.entity";
+import {PostLike} from "../../../modules/Danim/post/post-like.entity";
 
 export enum UserRole {
     //USER = 'user',
@@ -36,24 +38,36 @@ export class User {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ length: 100 })
+    @Column({nullable: true , length: 100 })
     fullName: string;
+
+    @Column({nullable: true , length: 100 })
+    firstName: string;
+
+    @Column({nullable: true , length: 100 })
+    lastName: string;
 
     @IsOptional()
     @Column({ nullable: true ,unique: true})
     username: string;
 
-    @Column({ unique: true })
+    @Column({default:null, unique: true })
     email: string;
 
     @Column({ default: false })
     isVerified: boolean;
+
+    @UpdateDateColumn()
+    phoneVerifiedAt?: Date;
 
     @Column({ nullable: true, unique: true })
     phoneNumber: string;
 
     @Column()
     password: string;
+
+    @Column({default:''})
+    code: string;
 
     @Column({ nullable: true })
     avatar?: string;
@@ -83,10 +97,16 @@ export class User {
     lastLogin?: Date | null;
 
 
-    // ✅ ارتباط با Supporter
+
     @OneToOne(() => Supporter, (supporter) => supporter.user)
     supporterProfile: Supporter;
 
     @OneToMany(() => Notification, (notification) => notification.user)
     notifications: Notification[];
+
+    @OneToMany(() => Post, post => post.author)
+    posts: Post[];
+
+    @OneToMany(() => PostLike, like => like.user)
+    likesRelations: PostLike[];
 }

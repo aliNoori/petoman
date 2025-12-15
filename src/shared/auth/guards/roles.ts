@@ -97,10 +97,20 @@ roles
     .readAny('donations')
     .updateAny('donations');
 
+// -------------------- Author --------------------
+roles
+    .grant(UserRole.DANIM_AUTHOR)
+    .createOwn('posts')
+    .updateOwn('posts')
+    .deleteOwn('posts')
+
 // -------------------- DANIM_ADMIN --------------------
 roles
     .grant(UserRole.DANIM_ADMIN)
-    //.extend(UserRole.DANIM_SUBSCRIBER)
+    .extend(UserRole.DANIM_AUTHOR)
+    .createAny('posts')
+    .updateAny('posts')
+    .deleteAny('posts')
     .createAny('danim_pages')
     .updateAny('danim_pages')
     .deleteAny('danim_pages')
@@ -138,8 +148,3 @@ roles
     .updateAny('posts')
     .updateAny('pages');
 
-// -------------------- Author --------------------
-roles
-    .grant(UserRole.DANIM_AUTHOR)
-    .createOwn('posts')
-    .updateOwn('posts');

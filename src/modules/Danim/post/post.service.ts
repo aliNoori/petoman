@@ -7,6 +7,9 @@ import {CreatePostDto} from "./dto/create-post.dto";
 import {UpdatePostDto} from "./dto/update-post.dto";
 import {NotificationType} from "../../../shared/notification/notification.entity";
 import {NotificationService} from "../../../shared/notification/notification.service";
+import {PostLike} from "./post-like.entity";
+import {User} from "../../../shared/user/entities/user.entity";
+import {PostBookmark} from "./post-bookmark.entity";
 
 @Injectable()
 export class PostService {
@@ -14,6 +17,10 @@ export class PostService {
         private notifService: NotificationService,
         @InjectRepository(Post)
         private readonly postRepo: Repository<Post>,
+        @InjectRepository(PostLike)
+        private readonly postLikeRepo: Repository<PostLike>,
+        @InjectRepository(PostBookmark)
+        private readonly postBookmarkRepo: Repository<PostBookmark>,
         @InjectRepository(Category)
         private readonly categoryRepo: Repository<Category>,
     ) {}
@@ -45,7 +52,8 @@ export class PostService {
             ogImage: dto.ogImage,
             schemaType: dto.schemaType,
             publishDate: dto.publishDate,
-            categories, // 👈 دسته‌بندی‌ها با نام و id
+            categories,
+            author: onlineUser,
         });
 
         await this.notifService.create({
@@ -61,11 +69,35 @@ export class PostService {
         return this.postRepo.save(post);
     }
 
-    async findAll() {
-        return this.postRepo.find({
-            order: { createdAt: 'DESC' },
-            relations: ['categories'],
-        });
+    async findAll(userId?: string) {
+        const posts = await this.postRepo.find({ relations: ['author', 'categories'] });
+        if (userId) {
+
+            const likes = await this.postLikeRepo.find({
+                where: { user: { id: userId } },
+                relations: ['post'],
+            }as any);
+            const likedPostIds = likes.map(like => like.post.id);
+
+            // بررسی وضعیت بوک‌مارک (اگر داری)
+            const bookmarks = await this.postBookmarkRepo.find({
+                where: { user: { id: userId } },
+                relations: ['post'],
+            } as any);
+            const bookmarkedPostIds = bookmarks.map(b => b.post.id);
+
+            return posts.map(post => ({
+                ...post,
+                liked: likedPostIds.includes(post.id),
+                bookmarked: bookmarkedPostIds.includes(post.id),
+            }));
+        }
+
+        return posts.map(post => ({
+            ...post,
+            liked: false,
+            bookmarked: false,
+        }));
     }
 
     async findOne(id: string) {
@@ -120,15 +152,54 @@ export class PostService {
         return this.postRepo.save(post);
     }
 
-    async incrementLikes(id: string) {
-        const post = await this.findOne(id);
-        post.likes = (post.likes ?? 0) + 1;
-        return this.postRepo.save(post);
+    async toggleLike(postId: string, userId: string) {
+        const post = await this.postRepo.findOne({ where: { id: postId } });
+        if (!post) throw new NotFoundException('Post not found');
+
+        const existing = await this.postLikeRepo.findOne({
+            where: { post: { id: postId }, user: { id: userId } },
+            relations: ['post', 'user'],
+        } as any);
+
+        if (existing) {
+
+            await this.postLikeRepo.remove(existing);
+            post.likes = Math.max((post.likes ?? 0) - 1, 0);
+            await this.postRepo.save(post);
+            return { liked: false, likes: post.likes };
+        } else {
+
+            const like = this.postLikeRepo.create({ post, user: { id: userId } as User });
+            await this.postLikeRepo.save(like);
+            post.likes = (post.likes ?? 0) + 1;
+            await this.postRepo.save(post);
+            return { liked: true, likes: post.likes };
+        }
     }
 
-    async decrementLikes(id: string) {
-        const post = await this.findOne(id);
-        post.likes = Math.max((post.likes ?? 0) - 1, 0);
-        return this.postRepo.save(post);
+    async toggleBookmark(postId: string, userId: string) {
+        const post = await this.postRepo.findOne({ where: { id: postId } });
+        if (!post) throw new NotFoundException('Post not found');
+
+        const existing = await this.postBookmarkRepo.findOne({
+            where: { post: { id: postId }, user: { id: userId } },
+            relations: ['post', 'user'],
+        } as any);
+
+        if (existing) {
+            // اگر قبلاً بوکمارک شده بود → حذف کن
+            await this.postBookmarkRepo.remove(existing);
+            return { bookmarked: false };
+        } else {
+            // اگر نبود → اضافه کن
+            const bookmark = this.postBookmarkRepo.create({
+                post,
+                user: { id: userId } as User,
+            });
+            await this.postBookmarkRepo.save(bookmark);
+            return { bookmarked: true };
+        }
     }
+
+
 }

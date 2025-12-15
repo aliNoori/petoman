@@ -16,8 +16,8 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/types"],
   "exclude": ["node_modules"]
 }
