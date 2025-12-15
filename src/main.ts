@@ -45,7 +45,8 @@ async function bootstrap() {
       'http://localhost:5174',
       'http://localhost:3002',
       'http://localhost:6501',
-      'https://dash.petoman.com'
+      'https://dash.petoman.com',
+      'https://petoman.com'
     ],
     methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
     credentials: true
