@@ -35,7 +35,6 @@ export class OtpService {
         if (process.env.NODE_ENV !== 'production') {
             this.logger.log(`🔑 OTP Code for ${phone}: ${code}`);
         }
-
         const patternCode = process.env.IPPANEL_PATTERN_CODE ?? '';
         const result = await this.smsService.sendPattern(phone, patternCode, { "verification-code":code });
 
