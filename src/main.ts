@@ -8,6 +8,7 @@ import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   // Swagger config
   const config = new DocumentBuilder()
       .setTitle('Petoman API')
