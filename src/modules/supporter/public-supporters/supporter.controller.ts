@@ -22,8 +22,7 @@ import {ApiTags} from "@nestjs/swagger";
 
 @ApiTags('Supporters')
 @Controller({ path: 'supporters', version: '1' })
-@UseGuards(JwtAuthGuard,ResourceGuard)
-@ACL('create', 'supporters')
+
 export class SupporterController {
 
     constructor(
@@ -32,6 +31,8 @@ export class SupporterController {
         private readonly supporterService: SupporterService) {}
 
     @Post()
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     create(@Body() dto: CreateSupporterDto,@CurrentUser() user: User) {
         //const permission = this.rolesBuilder.can(user.roles).createAny('supporters');
         /*if (!permission.granted) {
@@ -51,6 +52,8 @@ export class SupporterController {
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     update(
         @Param('id', ParseUUIDPipe) id: string,
         @Body() dto: UpdateSupporterDto,
@@ -59,6 +62,8 @@ export class SupporterController {
     }
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.supporterService.remove(id);
     }

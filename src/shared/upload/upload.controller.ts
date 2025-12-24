@@ -187,20 +187,7 @@ export class UploadController {
     }
 
     @Delete()
-    async deleteFile(@Body('url') url: string) {
-        try {
-            // مسیر فایل را از URL استخراج کن
-            const relativePath = url.replace(/^.*\/uploads\//, '');
-            const filePath = `./uploads/${relativePath}`;
-
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-                //await this.uploadService.removeFile(url); // اگر در DB ذخیره می‌کنی
-                return { success: true, message: 'فایل حذف شد' };
-            }
-            return { success: false, message: 'فایل یافت نشد' };
-        } catch (err) {
-            return { success: false, message: 'خطا در حذف فایل', error: err.message };
-        }
+    delete(@Body('url') url: string) {
+        return this.uploadService.deleteFile(url)
     }
 }

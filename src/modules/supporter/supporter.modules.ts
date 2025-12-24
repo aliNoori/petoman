@@ -18,6 +18,12 @@ import {PageService} from "./page-builder/page.service";
 import {SettingModule} from "./setting/setting.modules";
 import {User} from "../../shared/user/entities/user.entity";
 import {NotificationModule} from "../../shared/notification/notification.module";
+import {RequestSupporter} from "./requests/request-supporter.entity";
+import {RequestSupporterController} from "./requests/request-supporter.controller";
+import {RequestSupporterService} from "./requests/request-supporter.service";
+import {UploadController} from "../../shared/upload/upload.controller";
+import {UploadModule} from "../../shared/upload/upload.module";
+import {KindnessMeetingRegistrationModule} from "./requests/kindness-meeting/kindness-meeting-registration.module";
 
 @Module({
     imports: [
@@ -27,10 +33,13 @@ import {NotificationModule} from "../../shared/notification/notification.module"
             KindnessMeeting,
             Page,
             Supporter,
+            RequestSupporter,
             User
         ]),
         SettingModule,
-        NotificationModule
+        NotificationModule,
+        UploadModule,
+        KindnessMeetingRegistrationModule
         //FileModule, // اگر فایل یا تصویر داشته باشن
         //UserModule, // اگر به کاربر وصل باشن
     ],
@@ -40,6 +49,7 @@ import {NotificationModule} from "../../shared/notification/notification.module"
         KindnessController,
         PageController,
         SupporterController,
+        RequestSupporterController,
     ],
     providers: [
         DocumentaryService,
@@ -47,6 +57,7 @@ import {NotificationModule} from "../../shared/notification/notification.module"
         KindnessService,
         PageService,
         SupporterService,
+        RequestSupporterService
     ],
 })
 export class SupporterModule {}

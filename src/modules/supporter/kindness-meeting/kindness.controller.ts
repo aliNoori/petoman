@@ -22,14 +22,15 @@ import {ResourceGuard} from "../../../shared/auth/guards/resource.guard";
 import {ApiTags} from "@nestjs/swagger";
 
 @ApiTags('kindness-meetings')
-@UseGuards(JwtAuthGuard,ResourceGuard)
-@ACL('create', 'supporters')
+
 @Controller({path: 'kindness-meetings', version: '1'})
 export class KindnessController {
     constructor(private readonly kindnessService: KindnessService) {
     }
 
     @Post()
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     @UseInterceptors(FileInterceptor('image', uploadOptions('kindness-meetings')) as any)
     create(@UploadedFile() file: Express.Multer.File,
            @Body() dto: CreateKindnessMeetingDto,@CurrentUser() user: User)
@@ -42,12 +43,19 @@ export class KindnessController {
         return this.kindnessService.findAll();
     }
 
+    @Get(':id/registrations')
+    findAllRegistrations(@Param('id') id: string) {
+        return this.kindnessService.findAllRegistrations(id);
+    }
+
     @Get(':id')
     findOne(@Param('id', ParseUUIDPipe) id: string) {
         return this.kindnessService.findOne(id);
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     @UseInterceptors(FileInterceptor('image', uploadOptions('kindness-meetings')) as any)
     update(
         @Param('id', ParseUUIDPipe) id: string,
@@ -57,6 +65,8 @@ export class KindnessController {
         return this.kindnessService.update(id, dto, file)
     }
     @Patch(':id/status')
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     updateStatus(
         @Param('id', ParseUUIDPipe) id: string,
         @Body('status') status: KindnessStatus
@@ -66,6 +76,8 @@ export class KindnessController {
 
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     remove(@Param('id', ParseUUIDPipe) id: string) {
         return this.kindnessService.remove(id);
     }

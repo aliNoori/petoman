@@ -8,11 +8,13 @@ import {
     IsDateString,
     IsNumber,
     Min,
-    MaxLength, IsBoolean, ValidateNested,
+    MaxLength,
+    IsBoolean,
+    ValidateNested,
 } from 'class-validator';
-import { SupporterType, SupporterStatus } from '../supporter.entity';
-import {ApiProperty, ApiPropertyOptional} from "@nestjs/swagger";
-import {Type} from "class-transformer";
+import { Type } from 'class-transformer';
+import { SupporterType, RequestSupporterStatus } from "../request-supporter.entity";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 class SocialLinksDto {
     @ApiPropertyOptional({ example: 'instagram', description: 'لینک اینستاگرام' })
@@ -36,12 +38,22 @@ class SocialLinksDto {
     twitter?: string;
 }
 
-export class CreateSupporterDto {
-    @ApiProperty({ example: 'علی رضایی', description: 'نام حامی (حداکثر ۱۰۰ کاراکتر)' })
+export class CreateRequestSupporterDto {
+    @ApiProperty({ example: 'علی', description: 'نام حامی (حداکثر ۱۰۰ کاراکتر)' })
     @IsString()
     @IsNotEmpty()
     @MaxLength(100)
-    name: string;
+    firstName: string;
+
+    @ApiProperty({ example: 'رضایی', description: 'نام خانوادگی حامی (حداکثر ۱۰۰ کاراکتر)' })
+    @IsString()
+    @IsNotEmpty()
+    @MaxLength(100)
+    lastName: string;
+
+    @ApiProperty({ example: '/avatar.png', description: 'آواتار' })
+    @IsString()
+    avatar: string;
 
     @ApiProperty({ example: '+989123456789', description: 'شماره تلفن حامی (فرمت ایران)' })
     @IsPhoneNumber('IR')
@@ -58,38 +70,25 @@ export class CreateSupporterDto {
     @IsString()
     password?: string;
 
-    @ApiProperty({ example: SupporterType.BOTH, description: 'نوع حامی', enum: SupporterType })
+    @ApiProperty({ example: SupporterType.FINANCIAL, description: 'نوع حامی', enum: SupporterType })
     @IsEnum(SupporterType)
     type: SupporterType;
 
-    @ApiProperty({ example: '2025-12-05T09:16:00Z', description: 'تاریخ عضویت', type: String, format: 'date-time' })
+    @ApiPropertyOptional({ example: '2025-12-05T09:16:00Z', description: 'تاریخ عضویت', type: String, format: 'date-time' })
+    @IsOptional()
     @IsDateString()
-    joinDate: string;
+    joinDate?: string;
 
-    @ApiProperty({ example: SupporterStatus.ACTIVE, description: 'وضعیت حامی', enum: SupporterStatus })
-    @IsEnum(SupporterStatus)
-    status: SupporterStatus;
+    @ApiPropertyOptional({ example: RequestSupporterStatus.PENDING, description: 'وضعیت درخواست', enum: RequestSupporterStatus })
+    @IsOptional()
+    @IsEnum(RequestSupporterStatus)
+    status?: RequestSupporterStatus;
 
     @ApiPropertyOptional({ example: 500000, description: 'مبلغ اولیه حمایت (باید >= 0 باشد)' })
     @IsOptional()
     @IsNumber()
     @Min(0)
     initialAmount?: number;
-
-    @ApiPropertyOptional({ example: 'تهران، خیابان آزادی، پلاک ۱۰', description: 'آدرس حامی' })
-    @IsOptional()
-    @IsString()
-    address?: string;
-
-    @ApiPropertyOptional({ example: 'یادداشت‌های اضافی درباره حامی', description: 'یادداشت‌ها' })
-    @IsOptional()
-    @IsString()
-    notes?: string;
-
-    @ApiPropertyOptional({ example: 'user-12345', description: 'شناسه کاربر مرتبط' })
-    @IsOptional()
-    @IsString()
-    userId?: string;
 
     @ApiPropertyOptional({ example: 'خراسان شمالی، شیروان', description: 'استان و شهر' })
     @IsOptional()
@@ -126,4 +125,14 @@ export class CreateSupporterDto {
     @ValidateNested()
     @Type(() => SocialLinksDto)
     socialLinks?: SocialLinksDto;
+
+    @ApiPropertyOptional({ example: 'یادداشت‌های اضافی درباره حامی', description: 'یادداشت‌ها' })
+    @IsOptional()
+    @IsString()
+    notes?: string;
+
+    @ApiPropertyOptional({ example: 'user-12345', description: 'شناسه کاربر مرتبط' })
+    @IsOptional()
+    @IsString()
+    userId?: string;
 }

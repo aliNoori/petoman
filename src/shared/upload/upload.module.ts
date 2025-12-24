@@ -13,7 +13,7 @@ import { Upload } from './upload.entity';
     TypeOrmModule.forFeature([Upload]), // ← این خط مهمه
   ],
   controllers: [UploadController],
-  providers: [UploadService],
-  exports: [UploadService],
+  providers: [UploadService,UploadController],
+  exports: [UploadService,UploadController],
 })
 export class UploadModule {}

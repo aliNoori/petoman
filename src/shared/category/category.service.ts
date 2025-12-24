@@ -140,6 +140,7 @@ export class CategoryService {
             .leftJoinAndSelect('c.type', 'type')
             .leftJoinAndSelect('c.parent', 'parent')
             .leftJoinAndSelect('c.posts', 'posts')
+            .leftJoinAndSelect('c.documents', 'documents')
             .orderBy('c.sortOrder', 'ASC');
 
         if (filters?.typeId)

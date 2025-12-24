@@ -26,13 +26,14 @@ import {ACL} from "../../../shared/auth/guards/acl.decorator";
 
 
 @ApiTags('documentaries')
-@UseGuards(JwtAuthGuard,ResourceGuard)
-@ACL('create', 'supporters')
+
 @Controller({ path: 'documentaries', version: '1' })
 export class DocumentaryController {
     constructor(private readonly documentaryService: DocumentaryService) {}
 
     @Post()
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'videoFile', maxCount: 1 },
         { name: 'thumbnailPreview', maxCount: 1 }
@@ -72,6 +73,8 @@ export class DocumentaryController {
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'videoFile', maxCount: 1 },
         { name: 'thumbnailPreview', maxCount: 1 }
@@ -114,6 +117,8 @@ export class DocumentaryController {
     }
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard,ResourceGuard)
+    @ACL('create', 'supporters')
     async remove(@Param('id', ParseUUIDPipe) id: string) {
         // پیدا کردن مستند با id
         const documentary = await this.documentaryService.findOne(id); // فقط id می‌دیم

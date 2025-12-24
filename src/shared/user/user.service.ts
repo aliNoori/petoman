@@ -91,10 +91,15 @@ export class UserService {
         }))
     }
     async findOne(id: string): Promise<User> {
-        const user = await this.userRepository.findOneBy({ id: id });
+        const user = await this.userRepository.findOne({
+            where: { id },
+            relations: ['supporterProfile'], // اینجا relation رو مشخص می‌کنی
+        });
+
         if (!user) throw new NotFoundException('User not found');
         return user;
     }
+
     async findByEmail(email: string): Promise<User> {
         const user = await this.userRepository.findOneBy({ email });
         if (!user) throw new NotFoundException('User not found');
@@ -105,7 +110,7 @@ export class UserService {
         return this.userRepository.findOne({ where: { phoneNumber } } as any);
     }
     async findById(id: string): Promise<User | null> {
-        return this.userRepository.findOne({ where: { id } });
+        return this.userRepository.findOne({ where: { id },relations: ['supporterProfile'] });
     }
     async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
         await this.userRepository.update(id, updateUserDto);

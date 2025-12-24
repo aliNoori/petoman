@@ -44,6 +44,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:5174',
       'http://localhost:3002',
+      'http://localhost:3005',
       'http://localhost:6501',
       'https://dash.petoman.com',
       'https://petoman.com'

@@ -18,6 +18,7 @@ import {Post} from '../../modules/Danim/post/post.entity'
 import {Movie} from "../../modules/film/content/movie/movie.entity";
 import {Series} from "../../modules/film/content/series/entities/series.entity";
 import {FilmPost} from "../../modules/film/post/post.entity";
+import {Documentary} from "../../modules/supporter/documentation/documentary.entity";
 export enum ContentType {
     POST = 'post',
     NEWS = 'news',
@@ -71,6 +72,9 @@ export class Category {
 
     @OneToMany(() => Series, series => series.category)
     series: Series[];
+
+    @OneToMany(() => Documentary, documentary => documentary.category)
+    documents: Documentary[];
 
     @TreeParent()
     parent?: Category | null;

@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import {Donation} from "../donation/donation.entity";
 import {Category} from "../../../shared/category/category.entity";
+import {KindnessMeetingRegistration} from "../requests/kindness-meeting/kindness-meeting-registration.entity";
 
 export enum KindnessType {
     FINANCIAL = 'financial',
@@ -106,5 +107,11 @@ export class KindnessMeeting {
 
     @OneToMany(() => Donation, donation => donation.kindnessMeeting)
     donations: Donation[];
+
+    @OneToMany(
+        () => KindnessMeetingRegistration,
+        reg => reg.kindnessMeeting,
+    )
+    registrations: KindnessMeetingRegistration[]
 
 }

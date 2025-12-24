@@ -66,6 +66,13 @@ import {OptionalJwtAuthGuard} from "./shared/auth/guards/jwt-auth-optional.guard
 import {PostBookmark} from "./modules/Danim/post/post-bookmark.entity";
 import {SmsModule} from "./shared/gateways/sms/sms.module";
 import {OtpCode} from "./shared/gateways/sms/entities/otp-code.entity";
+import {RequestSupporter} from "./modules/supporter/requests/request-supporter.entity";
+import {
+    KindnessMeetingRegistration
+} from "./modules/supporter/requests/kindness-meeting/kindness-meeting-registration.entity";
+import {PaymentModule} from "./shared/gateways/payments/payment.module";
+import {Order} from "./shared/order/order.entity";
+import {Transaction} from "./shared/transaction/transaction.entity";
 
 @Module({
     imports: [ConfigModule.forRoot({
@@ -79,13 +86,13 @@ import {OtpCode} from "./shared/gateways/sms/entities/otp-code.entity";
         database: 'pet',
         entities: [
             User,Upload,Category,CategoryTypeEntity, Message,Notification,OtpCode, Documentary, Donation, Faq,FaqType, KindnessMeeting,
-            Page, Supporter, AppearanceSetting, GeneralSetting, OpenGraphSetting,
+            Page, Supporter,RequestSupporter, AppearanceSetting, GeneralSetting, OpenGraphSetting,
             PaymentSetting, SchemaSetting, SeoSetting,Post,PostLike,PostBookmark,Tag,TagType,DanimPage,DanimGeneralSetting,
             DanimSeoSetting,DanimOpenGraphSetting,DanimSchemaSetting,DanimHomePageSetting,
             DanimPerformanceSetting,Movie,Series,Season,Episode,FilmPage,FilmPost,Comment,
             FilmGeneralSetting, FilmAdvanceSetting,
-            FilmSeoSetting,
-            FilmApiSetting,
+            FilmSeoSetting,KindnessMeetingRegistration,
+            FilmApiSetting,Order,Transaction,
             FilmSocialSetting,
             FilmOpengraphSetting
         ], // یا از autoLoadEntities استفاده کن
@@ -93,7 +100,10 @@ import {OtpCode} from "./shared/gateways/sms/entities/otp-code.entity";
     }), JwtModule.register({
         secret: process.env.JWT_SECRET || 'secret-key',
         signOptions: {expiresIn: '1d'},
-    }), AccessControlModule.forRoles(roles),UserModule,SmsModule,UploadModule,CategoryModule,TagModule,FaqModule,NotificationModule, ConfigModule, AuthModule, MessageModule, SupporterModule,DanimModule,FilmModule],
+    }), AccessControlModule.forRoles(roles),UserModule,SmsModule,
+        UploadModule,CategoryModule,TagModule,FaqModule,
+        NotificationModule, ConfigModule, AuthModule, MessageModule,
+        SupporterModule,DanimModule,FilmModule,PaymentModule],
     controllers: [AppController],
     providers: [AppService, ChatGateway,{
         provide: APP_GUARD,

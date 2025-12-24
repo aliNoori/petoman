@@ -3,11 +3,15 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     CreateDateColumn,
-    OneToOne,
-    JoinColumn, OneToMany,
+    ManyToOne,
 } from 'typeorm';
-import { User} from "../../../shared/user/entities/user.entity";
-import {Donation} from "../donation/donation.entity";
+import { User } from "../../../shared/user/entities/user.entity";
+
+export enum RequestSupporterStatus {
+    PENDING = 'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected',
+}
 
 export enum SupporterType {
     FINANCIAL = 'financial',
@@ -15,24 +19,34 @@ export enum SupporterType {
     BOTH = 'both',
 }
 
-export enum SupporterStatus {
-    ACTIVE = 'active',
-    INACTIVE = 'inactive',
-}
-
-@Entity('supporters')
-export class Supporter {
+@Entity('request_supporters')
+export class RequestSupporter {
     @PrimaryGeneratedColumn('uuid')
     id: string;
+
+    @Column({ length: 100 })
+    firstName: string;
+
+    @Column({ length: 100 })
+    lastName: string;
+
+    @Column()
+    phone: string;
+
+    @Column()
+    avatar: string;
+
+    @Column({ nullable: true })
+    email?: string;
 
     @Column({ type: 'enum', enum: SupporterType })
     type: SupporterType;
 
-    @Column({ type: 'date' })
-    joinDate: string;
+    @Column({ type: 'enum', enum: RequestSupporterStatus, default: RequestSupporterStatus.PENDING })
+    status: RequestSupporterStatus;
 
-    @Column({ type: 'enum', enum: SupporterStatus, default: SupporterStatus.ACTIVE })
-    status: SupporterStatus;
+    @Column({ type: 'date', nullable: true })
+    joinDate?: Date;
 
     @Column({ type: 'bigint', nullable: true })
     initialAmount?: number;
@@ -42,6 +56,7 @@ export class Supporter {
 
     @Column({ type: 'text', nullable: true })
     notes?: string;
+
     @Column({ type: 'text', nullable: true })
     province?: string;
 
@@ -70,12 +85,4 @@ export class Supporter {
 
     @CreateDateColumn()
     createdAt: Date;
-
-    @OneToOne(() => User, (user) => user.supporterProfile, { onDelete: 'CASCADE' })
-    @JoinColumn()
-    user: User;
-
-    @OneToMany(() => Donation, donation => donation.supporter)
-    donations: Donation[];
-
 }

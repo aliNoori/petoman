@@ -13,10 +13,13 @@ import * as fs from 'fs'
 import * as path from 'path'
 import {NotificationType} from "../../../shared/notification/notification.entity";
 import {NotificationService} from "../../../shared/notification/notification.service";
+import {Donation} from "../donation/donation.entity";
 @Injectable()
 export class KindnessService {
     constructor(
         private notifService: NotificationService,
+        @InjectRepository(Donation)
+        private readonly donationRepo: Repository<Donation>,
         @InjectRepository(KindnessMeeting)
         private readonly kindnessRepo: Repository<KindnessMeeting>,
         private readonly configService: ConfigService
@@ -44,6 +47,14 @@ export class KindnessService {
     async findAll(): Promise<KindnessMeetingResponseDto[]> {
         const meetings = await this.kindnessRepo.find({
             relations: ['donations','category'],
+            order: { createdAt: 'DESC' },
+        });
+        return meetings.map(m => this.toResponseDto(m))
+    }
+    async findAllRegistrations(meetingId: string): Promise<KindnessMeetingResponseDto[]> {
+        const meetings = await this.kindnessRepo.find({
+            where:{id:meetingId},
+            relations: ['donations','category','registrations'],
             order: { createdAt: 'DESC' },
         });
         return meetings.map(m => this.toResponseDto(m))
@@ -78,23 +89,31 @@ export class KindnessService {
     }
 
     async remove(id: string) {
-        const meeting = await this.kindnessRepo.findOneBy({ id })
+        const meeting = await this.kindnessRepo.findOne({
+            where: { id },
+            relations: ['donations'] // مطمئن شو donations لود می‌شن
+        })
         if (!meeting) throw new NotFoundException('قرار مهربانی پیدا نشد')
 
+        // حذف تصویر
         if (meeting.image) {
-            const imagePath = meeting.image.replace(/^https?:\/\/[^\/]+/, '') // حذف دامنه اگر هست
+            const imagePath = meeting.image.replace(/^https?:\/\/[^\/]+/, '')
             const fullPath = path.join(process.cwd(), imagePath)
-
             if (fs.existsSync(fullPath) && fs.lstatSync(fullPath).isFile()) {
                 fs.unlinkSync(fullPath)
-                console.log(' تصویر حذف شد:', fullPath)
-            } else {
-                console.log(' مسیر تصویر معتبر نیست یا فایل وجود ندارد:', fullPath)
+                console.log('تصویر حذف شد:', fullPath)
             }
         }
 
+        // اول donations رو پاک کن
+        if (meeting.donations?.length) {
+            await this.donationRepo.remove(meeting.donations)
+        }
+
+        // بعد خود meeting رو پاک کن
         return this.kindnessRepo.remove(meeting)
     }
+
     async toggleStatus(id: string, status: KindnessStatus) {
         const meeting = await this.kindnessRepo.findOneBy({ id })
         if (!meeting) throw new NotFoundException('قرار مهربانی پیدا نشد')

@@ -5,6 +5,7 @@ import {KindnessMeeting} from "../kindness-meeting/kindness-meeting.entity";
 export enum DonationMethod {
     CASH = 'cash',
     CARD = 'card',
+    ONLINE='online',
     CHECK = 'check',
 }
 
