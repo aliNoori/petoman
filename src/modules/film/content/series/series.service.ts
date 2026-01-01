@@ -10,6 +10,8 @@ import {Category} from "../../../../shared/category/category.entity";
 import {deleteFile} from "../../../../utils/file-upload.utils";
 import {NotificationType} from "../../../../shared/notification/notification.entity";
 import {NotificationService} from "../../../../shared/notification/notification.service";
+import {MediaFavorite} from "../film-favorite.entity";
+import {MediaWatchList} from "../film-watch-list.entity";
 
 @Injectable()
 export class SeriesService {
@@ -18,6 +20,10 @@ export class SeriesService {
         @InjectRepository(Series) private seriesRepo: Repository<Series>,
         @InjectRepository(Season) private seasonRepo: Repository<Season>,
         @InjectRepository(Episode) private episodeRepo: Repository<Episode>,
+        @InjectRepository(MediaFavorite)
+        private readonly mediaFavoriteRepo: Repository<MediaFavorite>,
+        @InjectRepository(MediaWatchList)
+        private readonly mediaWatchListRepo: Repository<MediaWatchList>,
     ) {}
 
     async create(dto: CreateSeriesDto,user): Promise<Series> {
@@ -82,8 +88,67 @@ export class SeriesService {
         return s;
     }
 
-    findAll() {
-        return this.seriesRepo.find();
+    async findAll(userId?: string): Promise<any[]> {
+        // گرفتن همه سریال‌ها همراه با فصل‌ها و اپیزودها
+        const seriesList = await this.seriesRepo.find({
+            relations: ['category', 'seasons', 'seasons.episodes'],
+        });
+
+        if (userId) {
+            // علاقه‌مندی‌های سریال
+            const seriesFavorites = await this.mediaFavoriteRepo.find({
+                where: { user: { id: userId }, mediaType: 'series' },
+            } as any);
+            const favoriteSeriesIds = seriesFavorites.map(f => f.mediaId);
+
+            // لیست تماشای سریال
+            const seriesWatchlists = await this.mediaWatchListRepo.find({
+                where: { user: { id: userId }, mediaType: 'series' },
+            } as any);
+            const watchlistSeriesIds = seriesWatchlists.map(w => w.mediaId);
+
+            // علاقه‌مندی‌های اپیزود
+            const episodeFavorites = await this.mediaFavoriteRepo.find({
+                where: { user: { id: userId }, mediaType: 'episode' },
+            } as any);
+            const favoriteEpisodeIds = episodeFavorites.map(f => f.mediaId);
+
+            // لیست تماشای اپیزود
+            const episodeWatchlists = await this.mediaWatchListRepo.find({
+                where: { user: { id: userId }, mediaType: 'episode' },
+            } as any);
+            const watchlistEpisodeIds = episodeWatchlists.map(w => w.mediaId);
+
+            // برگرداندن سریال‌ها همراه با وضعیت
+            return seriesList.map(series => ({
+                ...series,
+                favorite: favoriteSeriesIds.includes(series.id),
+                watchlist: watchlistSeriesIds.includes(series.id),
+                seasons: series.seasons.map(season => ({
+                    ...season,
+                    episodes: season.episodes.map(ep => ({
+                        ...ep,
+                        favorite: favoriteEpisodeIds.includes(ep.id),
+                        watchlist: watchlistEpisodeIds.includes(ep.id),
+                    })),
+                })),
+            }));
+        }
+
+        // اگر userId نبود → همه false
+        return seriesList.map(series => ({
+            ...series,
+            favorite: false,
+            watchlist: false,
+            seasons: series.seasons.map(season => ({
+                ...season,
+                episodes: season.episodes.map(ep => ({
+                    ...ep,
+                    favorite: false,
+                    watchlist: false,
+                })),
+            })),
+        }));
     }
 
     async update(id: string, dto: UpdateSeriesDto): Promise<Series> {

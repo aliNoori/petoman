@@ -45,6 +45,11 @@ export class CreateCategoryDto {
     @IsInt()
     sortOrder?: number;
 
+    @ApiPropertyOptional({ example: 'https://example.com/icon.png', description: 'ایکون دسته‌بندی' })
+    @IsOptional()
+    @IsString()
+    icon?: string;
+
     @ApiPropertyOptional({ example: 'https://example.com/logo.png', description: 'لوگوی دسته‌بندی' })
     @IsOptional()
     @IsString()

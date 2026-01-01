@@ -11,6 +11,9 @@ import {IsOptional, IsString} from "class-validator";
 import {Notification} from "../../notification/notification.entity";
 import {Post} from "../../../modules/Danim/post/post.entity";
 import {PostLike} from "../../../modules/Danim/post/post-like.entity";
+import {MediaWatchList} from "../../../modules/film/content/film-watch-list.entity";
+import {MediaFavorite} from "../../../modules/film/content/film-favorite.entity";
+import {UserSetting} from "./user-setting.entity";
 
 export enum UserRole {
     //USER = 'user',
@@ -72,6 +75,9 @@ export class User {
     @Column({ nullable: true })
     avatar?: string;
 
+    @Column({ nullable: true })
+    bio?: string;
+
     @Column({ default: true })
     isActive: boolean;
 
@@ -96,6 +102,11 @@ export class User {
     @Column({ type: 'timestamp', nullable: true })
     lastLogin?: Date | null;
 
+    @OneToOne(() => UserSetting, settings => settings.user, {
+        cascade: true,
+    })
+    settings: UserSetting
+
 
 
     @OneToOne(() => Supporter, (supporter) => supporter.user)
@@ -109,4 +120,10 @@ export class User {
 
     @OneToMany(() => PostLike, like => like.user)
     likesRelations: PostLike[];
+
+    @OneToMany(() => MediaWatchList, watchList => watchList.user)
+    watchListsRelations: MediaWatchList[];
+
+    @OneToMany(() => MediaFavorite, favorite => favorite.user)
+    favoritesRelations: MediaFavorite[];
 }

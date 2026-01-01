@@ -64,7 +64,7 @@ export class Category {
     @ManyToMany(() => Post, post => post.categories)
     posts: Post[];
 
-    @ManyToMany(() => FilmPost, post => post.category)
+    @OneToMany(() => FilmPost, post => post.category)
     film_posts: FilmPost[];
 
     @OneToMany(() => Movie, movie => movie.category)
@@ -90,6 +90,10 @@ export class Category {
 
     @Column({ type: 'int', default: 0 })
     sortOrder: number;
+
+    @Column({ type: 'varchar', length: 100, nullable: true })
+    icon?: string;
+
 
     @Column({ type: 'varchar', length: 255, nullable: true })
     logo?: string;

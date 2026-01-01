@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Put, Delete, Param, Body, Patch, UseGuards} from '@nestjs/common';
+import {Controller, Get, Post, Put, Delete, Param, Body, Patch, UseGuards, Req} from '@nestjs/common';
 import { MovieService } from './movie.service';
 import {CreateMovieDto} from "./dto/movie-create.dto";
 import {Movie} from "./movie.entity";
@@ -12,7 +12,7 @@ import {ACL} from "../../../../shared/auth/guards/acl.decorator";
 
 
 @ApiTags('movies')
-@UseGuards(JwtAuthGuard/*,ResourceGuard*/)
+
 //@ACL('create', 'supporters')
 @Controller({path:'movies',version:"1"})
 
@@ -20,13 +20,16 @@ export class MovieController {
     constructor(private readonly movieService: MovieService) {}
 
     @Post()
+    @UseGuards(JwtAuthGuard/*,ResourceGuard*/)
     async create(@Body() dto: CreateMovieDto,@CurrentUser() user: User): Promise<Movie> {
         return this.movieService.create(dto,user);
     }
 
     @Get()
-    async findAll(): Promise<Movie[]> {
-        return this.movieService.findAll();
+    async findAll(@Req() req): Promise<any[]> {
+        const user = req.user as User | undefined;
+        const userId = user?.id;
+        return this.movieService.findAll(userId);
     }
 
     @Get(':id')
@@ -35,6 +38,7 @@ export class MovieController {
     }
 
     @Patch(':id')
+    @UseGuards(JwtAuthGuard/*,ResourceGuard*/)
     async update(
         @Param('id') id: string,
         @Body() dto: UpdateMovieDto,
@@ -43,6 +47,7 @@ export class MovieController {
     }
 
     @Delete(':id')
+    @UseGuards(JwtAuthGuard/*,ResourceGuard*/)
     async remove(@Param('id') id: string): Promise<void> {
         return this.movieService.remove(id);
     }

@@ -77,7 +77,7 @@ export class SmsService {
                 recipients: [phone],
                 params: parameters,
             };
-
+            console.log('payload',payload)
             const response = await firstValueFrom(
                 this.httpService.post(`${this.baseUrl}/api/send`, payload, {
                     headers: {

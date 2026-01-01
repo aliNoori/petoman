@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    OneToMany,
+    CreateDateColumn,
+    UpdateDateColumn
+} from 'typeorm';
 import { Series } from './series.entity';
 import { Episode } from './episode.entity';
 
@@ -21,4 +29,11 @@ export class Season {
 
     @OneToMany(() => Episode, (e) => e.season, { cascade: true,onDelete: 'CASCADE', eager: true })
     episodes: Episode[];
+
+
+    @CreateDateColumn()
+    createdAt: Date
+
+    @UpdateDateColumn()
+    updatedAt: Date
 }

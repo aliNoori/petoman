@@ -73,6 +73,11 @@ import {
 import {PaymentModule} from "./shared/gateways/payments/payment.module";
 import {Order} from "./shared/order/order.entity";
 import {Transaction} from "./shared/transaction/transaction.entity";
+import {MediaFavorite} from "./modules/film/content/film-favorite.entity";
+import {MediaWatchList} from "./modules/film/content/film-watch-list.entity";
+import {MediaWatched} from "./modules/film/content/media-watched.entity";
+import {ReportEntity} from "./modules/film/report/report.entity";
+import {UserSetting} from "./shared/user/entities/user-setting.entity";
 
 @Module({
     imports: [ConfigModule.forRoot({
@@ -90,10 +95,10 @@ import {Transaction} from "./shared/transaction/transaction.entity";
             PaymentSetting, SchemaSetting, SeoSetting,Post,PostLike,PostBookmark,Tag,TagType,DanimPage,DanimGeneralSetting,
             DanimSeoSetting,DanimOpenGraphSetting,DanimSchemaSetting,DanimHomePageSetting,
             DanimPerformanceSetting,Movie,Series,Season,Episode,FilmPage,FilmPost,Comment,
-            FilmGeneralSetting, FilmAdvanceSetting,
+            FilmGeneralSetting, FilmAdvanceSetting,ReportEntity,
             FilmSeoSetting,KindnessMeetingRegistration,
-            FilmApiSetting,Order,Transaction,
-            FilmSocialSetting,
+            FilmApiSetting,Order,Transaction,UserSetting,
+            FilmSocialSetting,MediaFavorite,MediaWatchList,MediaWatched,
             FilmOpengraphSetting
         ], // یا از autoLoadEntities استفاده کن
         synchronize: true, // فقط برای توسعه، نه تولید!

@@ -3,7 +3,7 @@ import {
     PrimaryGeneratedColumn,
     Column,
     ManyToOne,
-    JoinColumn,
+    JoinColumn, CreateDateColumn, UpdateDateColumn,
 } from 'typeorm';
 import {Category} from "../../../../shared/category/category.entity";
 
@@ -98,4 +98,10 @@ export class Movie {
 
     @Column()
     categoryId: string;
+
+    @CreateDateColumn()
+    createdAt: Date
+
+    @UpdateDateColumn()
+    updatedAt: Date
 }

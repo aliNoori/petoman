@@ -9,6 +9,7 @@ export enum ContentType {
     FILM = 'film',
     MOVIE='movie',
     SERIES='series',
+    GENERAL='general',
     VET = 'vet',
     MARKET = 'market',
 }

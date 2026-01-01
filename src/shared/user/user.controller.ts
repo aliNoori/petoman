@@ -9,6 +9,8 @@ import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {CurrentUser} from "../auth/guards/current-user.decorator";
 import {User} from "./entities/user.entity";
+import {UpdateUserSettingDto} from "./dto/update-user-setting.dto";
+import {ChangePasswordDto} from "./dto/password.dto";
 
 @ApiTags('Users')
 @UseGuards(JwtAuthGuard)
@@ -66,5 +68,29 @@ export class UserController {
     async toggleStatus(@Param('id') id: string) {
         return await this.userService.toggleUserStatus(id); // بازگشت کاربر با وضعیت جدید
     }
+
+    @Get('me/settings')
+    async getMySettings(@CurrentUser() user: User) {
+        return this.userService.getUserSettings(user.id)
+    }
+
+    @Patch('me/settings')
+    async updateMySettings(
+        @CurrentUser() user: User,
+        @Body() dto: UpdateUserSettingDto,
+    ) {
+        return this.userService.updateUserSettings(user.id, dto)
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('change-password')
+    changePassword(
+        @Req() req,
+        @Body() dto: ChangePasswordDto,
+    ) {
+        return this.userService.changePassword(req.user.id, dto)
+    }
+
+
 
 }

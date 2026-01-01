@@ -114,6 +114,7 @@ export class UploadController {
 
     @Post('video-merge')
     async mergeChunks(@Body('videoId') videoId: string) {
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         const chunkDir = join(BASE_UPLOAD_PATH, 'chunks');
         const finalPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}.mp4`);
 
@@ -135,7 +136,7 @@ export class UploadController {
                         console.error('خطا در حذف chunk:', err);
                     }
                 }
-                resolve({ url: `/uploads/videos/${videoId}.mp4` });
+                resolve({ url: `${baseUrl}/uploads/videos/${videoId}.mp4` });
             });
 
             const appendNext = (index: number) => {

@@ -70,6 +70,11 @@ export class CreateUserDto {
     @IsString()
     avatar?: string;
 
+    @ApiPropertyOptional({ example: 'بیوگارفی', description: 'من در شرکت کار می کنم' })
+    @IsOptional()
+    @IsString()
+    bio?: string;
+
     @ApiPropertyOptional({ example: [UserRole.ADMIN, UserRole.DANIM_ADMIN], description: 'نقش‌های کاربر', enum: UserRole, isArray: true })
     @IsOptional()
     @IsArray()

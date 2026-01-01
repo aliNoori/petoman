@@ -46,6 +46,7 @@ export class CategoryService {
             contentType:dto.contentType,
             description: dto.description,
             color:dto.color,
+            icon:dto.icon,
             cover:dto.cover??'',
             logo:dto.logo??'',
             isActive: dto.isActive ?? true,
@@ -99,6 +100,7 @@ export class CategoryService {
         if (dto.description !== undefined) cat.description = dto.description;
         if (dto.isActive !== undefined) cat.isActive = dto.isActive;
         if (dto.sortOrder !== undefined) cat.sortOrder = dto.sortOrder;
+        if (dto.icon !== undefined) cat.icon = dto.icon;
         if (dto.cover !== undefined) cat.cover = dto.cover;
         if (dto.logo !== undefined) cat.logo = dto.logo;
         if (dto.color !== undefined) cat.color = dto.color;
@@ -141,6 +143,9 @@ export class CategoryService {
             .leftJoinAndSelect('c.parent', 'parent')
             .leftJoinAndSelect('c.posts', 'posts')
             .leftJoinAndSelect('c.documents', 'documents')
+            .leftJoinAndSelect('c.movies', 'movies')
+            .leftJoinAndSelect('c.series', 'series')
+            .leftJoinAndSelect('c.film_posts', 'film_posts')
             .orderBy('c.sortOrder', 'ASC');
 
         if (filters?.typeId)

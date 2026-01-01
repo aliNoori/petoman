@@ -1,4 +1,4 @@
-import {ForbiddenException, Injectable, Logger, NotFoundException} from '@nestjs/common';
+import {BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException} from '@nestjs/common';
 import {User, UserRole} from "./entities/user.entity";
 import {In, Raw, Repository} from "typeorm";
 import {UpdateUserDto} from "./dto/update-user.dto";
@@ -6,11 +6,16 @@ import {CreateUserDto} from "./dto/create-user.dto";
 import {InjectRepository} from '@nestjs/typeorm';
 import {Supporter} from "../../modules/supporter/public-supporters/supporter.entity";
 import * as bcrypt from "bcrypt";
+import {UserSetting} from "./entities/user-setting.entity";
+import {UpdateUserSettingDto} from "./dto/update-user-setting.dto";
+import {ChangePasswordDto} from "./dto/password.dto";
 
 @Injectable()
 export class UserService {
     private readonly logger = new Logger(UserService.name);
     constructor(
+        @InjectRepository(UserSetting)
+        private readonly settingsRepo: Repository<UserSetting>,
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
         @InjectRepository(Supporter)
@@ -135,6 +140,47 @@ export class UserService {
         user.isActive = !user.isActive;
         return this.userRepository.save(user);
     }
+
+
+    async getUserSettings(userId: string): Promise<UserSetting> {
+        let settings = await this.settingsRepo.findOne({
+            where: { userId },
+        })
+
+        if (!settings) {
+            settings = this.settingsRepo.create({ userId })
+            await this.settingsRepo.save(settings)
+        }
+
+        return settings
+    }
+
+    async updateUserSettings(
+        userId: string,
+        dto: UpdateUserSettingDto,
+    ): Promise<UserSetting> {
+        const settings = await this.getUserSettings(userId)
+
+        Object.assign(settings, dto)
+
+        return this.settingsRepo.save(settings)
+    }
+
+    async changePassword(userId: string, dto: ChangePasswordDto) {
+        const user = await this.userRepository.findOneBy({ id: userId })
+
+        if (!user || !(await bcrypt.compare(dto.currentPassword, user.password))) {
+            throw new BadRequestException('رمز فعلی اشتباه است')
+        }
+
+        user.password = await bcrypt.hash(dto.newPassword, 10)
+        await this.userRepository.save(user)
+
+        return { success: true }
+    }
+
+
+
 
 
 }

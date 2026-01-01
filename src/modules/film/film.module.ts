@@ -20,10 +20,16 @@ import {CommentController} from "./comment/comment.controller";
 import {CommentService} from "./comment/comment.service";
 import {Comment} from "./comment/comment.entity";
 import {FilmSettingModule} from "./setting/setting.modules";
+import {MediaModule} from "./content/media.module";
+import {MediaFavorite} from "./content/film-favorite.entity";
+import {MediaWatchList} from "./content/film-watch-list.entity";
+import {ReportController} from "./report/report.controller";
+import {ReportService} from "./report/report.service";
+import {ReportEntity} from "./report/report.entity";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Movie, Category,Series,Season,Episode,FilmPage,FilmPost,Comment]),NotificationModule,FilmSettingModule],
-    controllers: [MovieController,SeriesController,PageController,PostFilmController,CommentController],
-    providers: [MovieService,SeriesService,PageService,PostFilmService,CommentService],
+    imports: [TypeOrmModule.forFeature([Movie, Category,Series,Season,Episode,FilmPage,FilmPost,Comment,MediaFavorite,MediaWatchList,ReportEntity]),NotificationModule,FilmSettingModule,MediaModule],
+    controllers: [MovieController,SeriesController,PageController,PostFilmController,CommentController,ReportController],
+    providers: [MovieService,SeriesService,PageService,PostFilmService,CommentService,ReportService],
 })
 export class FilmModule {}
