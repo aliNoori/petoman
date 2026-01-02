@@ -96,9 +96,7 @@ export class UploadController {
         storage: diskStorage({
             destination: join(BASE_UPLOAD_PATH, 'chunks'),
             filename: (req, file, cb) => {
-                const {index, videoId} = req.body;
-                const id = videoId || uuid();
-                cb(null, `${id}-${index}.mp4`);
+                cb(null, file.originalname);
             }
         }),
     }) as any)
