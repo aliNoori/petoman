@@ -166,6 +166,12 @@ export class UploadController {
         const finalPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}.mp4`);
         const fixedPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}-fixed.mp4`);
 
+        console.log('BASE_UPLOAD_PATH',BASE_UPLOAD_PATH)
+        console.log('baseUrl',baseUrl)
+        console.log('chunkDir',chunkDir)
+        console.log('finalPath',finalPath)
+        console.log('fixedPath',fixedPath)
+
         const chunkFiles = fs.readdirSync(chunkDir)
             .filter(f => f.startsWith(videoId))
             .sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
