@@ -41,8 +41,18 @@ export const uploadOptions = (folder: string) => ({
 @Controller('v1/uploads')
 export class UploadController {
     constructor(private readonly uploadService: UploadService) {
-        ['uploads', 'uploads/images', 'uploads/videos', 'uploads/files'].forEach(p => {
-            if (!fs.existsSync(p)) fs.mkdirSync(p);
+        const folders = [
+            BASE_UPLOAD_PATH,
+            join(BASE_UPLOAD_PATH, 'images'),
+            join(BASE_UPLOAD_PATH, 'videos'),
+            join(BASE_UPLOAD_PATH, 'files'),
+            join(BASE_UPLOAD_PATH, 'chunks'),
+        ];
+
+        folders.forEach(dir => {
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
         });
     }
 
