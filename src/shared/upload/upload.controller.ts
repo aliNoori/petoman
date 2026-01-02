@@ -158,69 +158,47 @@ export class UploadController {
         });
     }*/
 
-
     @Post('video-merge')
     async mergeChunks(@Body('videoId') videoId: string) {
         const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         const chunkDir = join(BASE_UPLOAD_PATH, 'chunks');
-        const finalPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}.mp4`);
-        const fixedPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}-fixed.mp4`);
+        const videoDir = join(BASE_UPLOAD_PATH, 'videos');
+        const finalPath = join(videoDir, `${videoId}.mp4`);
+        const listPath = join(chunkDir, `${videoId}.txt`);
 
-        console.log('BASE_UPLOAD_PATH',BASE_UPLOAD_PATH)
-        console.log('baseUrl',baseUrl)
-        console.log('chunkDir',chunkDir)
-        console.log('finalPath',finalPath)
-        console.log('fixedPath',fixedPath)
-
+        // پیدا کردن همه chunkها
         const chunkFiles = fs.readdirSync(chunkDir)
             .filter(f => f.startsWith(videoId))
             .sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
 
-        return new Promise((resolve, reject) => {
-            const writeStream = fs.createWriteStream(finalPath);
+        if (chunkFiles.length === 0) {
+            throw new Error('هیچ چانکی پیدا نشد');
+        }
 
-            writeStream.on('error', reject);
-            writeStream.on('close', () => {
-                // پاکسازی chunkها
-                for (const chunkFile of chunkFiles) {
-                    const chunkPath = join(chunkDir, chunkFile);
-                    try {
-                        fs.unlinkSync(chunkPath);
-                    } catch (err) {
-                        console.error('خطا در حذف chunk:', err);
-                    }
+        // ساخت فایل لیست برای ffmpeg
+        const listContent = chunkFiles
+            .map(f => `file '${join(chunkDir, f)}'`)
+            .join('\n');
+
+        fs.writeFileSync(listPath, listContent);
+
+        return new Promise((resolve, reject) => {
+            const cmd = `ffmpeg -f concat -safe 0 -i "${listPath}" -c copy -movflags faststart "${finalPath}"`;
+
+            exec(cmd, (err) => {
+                if (err) {
+                    console.error('ffmpeg merge error:', err);
+                    return reject(err);
                 }
 
-                // 👇 اجرای ffmpeg برای اصلاح فایل
-                exec(`ffmpeg -i "${finalPath}" -c copy -movflags faststart "${fixedPath}"`, (err) => {
-                    if (err) {
-                        console.error('خطا در ffmpeg:', err);
-                        return reject(err);
-                    }
-                    // حذف فایل خام و جایگزینی با فایل اصلاح‌شده
-                    try {
-                        fs.unlinkSync(finalPath);
-                        fs.renameSync(fixedPath, finalPath);
-                    } catch (err) {
-                        console.error('خطا در جایگزینی فایل:', err);
-                    }
-                    resolve({url: `${baseUrl}/uploads/videos/${videoId}.mp4`});
+                // پاکسازی chunkها
+                chunkFiles.forEach(f => fs.unlinkSync(join(chunkDir, f)));
+                fs.unlinkSync(listPath);
+
+                resolve({
+                    url: `${baseUrl}/uploads/videos/${videoId}.mp4`
                 });
             });
-
-            const appendNext = (index: number) => {
-                if (index >= chunkFiles.length) {
-                    writeStream.end();
-                    return;
-                }
-                const chunkPath = join(chunkDir, chunkFiles[index]);
-                const readStream = fs.createReadStream(chunkPath);
-                readStream.pipe(writeStream, {end: false});
-                readStream.on('end', () => appendNext(index + 1));
-                readStream.on('error', reject);
-            };
-
-            appendNext(0);
         });
     }
 
