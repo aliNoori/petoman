@@ -168,10 +168,9 @@ export class UploadController {
         const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         const chunkDir = join(BASE_UPLOAD_PATH, 'chunks');
         const videoDir = join(BASE_UPLOAD_PATH, 'videos');
+        const tempPath = join(videoDir, `${videoId}-raw.mp4`);
         const finalPath = join(videoDir, `${videoId}.mp4`);
-        const listPath = join(chunkDir, `${videoId}.txt`);
 
-        // پیدا کردن همه chunkها
         const chunkFiles = fs.readdirSync(chunkDir)
             .filter(f => f.startsWith(videoId))
             .sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
@@ -180,34 +179,30 @@ export class UploadController {
             throw new Error('هیچ چانکی پیدا نشد');
         }
 
-        // ساخت فایل لیست برای ffmpeg
-        const listContent = chunkFiles
-            .map(f => `file '${join(chunkDir, f)}'`)
-            .join('\n');
-
-        fs.writeFileSync(listPath, listContent);
+        // چسباندن باینری همه chunkها
+        const writeStream = fs.createWriteStream(tempPath);
+        for (const f of chunkFiles) {
+            const chunkPath = join(chunkDir, f);
+            const data = fs.readFileSync(chunkPath);
+            writeStream.write(data);
+            fs.unlinkSync(chunkPath);
+        }
+        writeStream.end();
 
         return new Promise((resolve, reject) => {
-            // به جای -c copy از encode استفاده کن
-            const cmd = `ffmpeg -f concat -safe 0 -i "${listPath}" -c:v libx264 -c:a aac -movflags faststart "${finalPath}"`;
-
+            // اجرای ffmpeg روی فایل نهایی برای ساخت moov atom
+            const cmd = `ffmpeg -i "${tempPath}" -c copy -movflags faststart "${finalPath}"`;
             exec(cmd, (err) => {
                 if (err) {
                     console.error('ffmpeg merge error:', err);
                     return reject(err);
                 }
-
-                // پاکسازی chunkها
-                chunkFiles.forEach(f => fs.unlinkSync(join(chunkDir, f)));
-                fs.unlinkSync(listPath);
-
-                resolve({
-                    url: `${baseUrl}/uploads/videos/${videoId}.mp4`
-                });
+                fs.unlinkSync(tempPath);
+                resolve({ url: `${baseUrl}/uploads/videos/${videoId}.mp4` });
             });
         });
-
     }
+
 
 
 // 📄 فایل عمومی (pdf, docx, zip و ...)
