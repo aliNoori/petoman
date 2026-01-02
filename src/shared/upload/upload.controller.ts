@@ -188,7 +188,8 @@ export class UploadController {
         fs.writeFileSync(listPath, listContent);
 
         return new Promise((resolve, reject) => {
-            const cmd = `ffmpeg -f concat -safe 0 -i "${listPath}" -c copy -movflags faststart "${finalPath}"`;
+            // به جای -c copy از encode استفاده کن
+            const cmd = `ffmpeg -f concat -safe 0 -i "${listPath}" -c:v libx264 -c:a aac -movflags faststart "${finalPath}"`;
 
             exec(cmd, (err) => {
                 if (err) {
@@ -205,6 +206,7 @@ export class UploadController {
                 });
             });
         });
+
     }
 
 
