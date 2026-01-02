@@ -5,13 +5,14 @@ import {
     UseInterceptors,
     BadRequestException, Delete, Body,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import {FileInterceptor} from '@nestjs/platform-express';
+import {diskStorage} from 'multer';
 import {extname, join} from 'path';
-import { v4 as uuid } from 'uuid';
-import { UploadService } from './upload.service';
-import { UploadType } from './file-type.enum';
+import {v4 as uuid} from 'uuid';
+import {UploadService} from './upload.service';
+import {UploadType} from './file-type.enum';
 import * as fs from "fs";
+import { exec } from 'child_process';
 // مسیر پایه برای همه آپلودها
 const BASE_UPLOAD_PATH = '/var/www/petoman/uploads';
 //const BASE_UPLOAD_PATH = './uploads';
@@ -21,7 +22,7 @@ export const uploadOptions = (folder: string) => ({
             const uploadPath = join(BASE_UPLOAD_PATH, folder);
             // اگر پوشه وجود ندارد بساز
             if (!fs.existsSync(uploadPath)) {
-                fs.mkdirSync(uploadPath, { recursive: true });
+                fs.mkdirSync(uploadPath, {recursive: true});
             }
             cb(null, uploadPath);
         },
@@ -59,12 +60,12 @@ export class UploadController {
                 }
                 cb(null, true);
             },
-            limits: { fileSize: 5 * 1024 * 1024 }, // حداکثر ۵ مگابایت
+            limits: {fileSize: 5 * 1024 * 1024}, // حداکثر ۵ مگابایت
         }) as any,
     )
     async uploadImage(@UploadedFile() file: Express.Multer.File) {
         const upload = await this.uploadService.saveFile(file, UploadType.IMAGE);
-        return { url: upload.url, id: upload.id };
+        return {url: upload.url, id: upload.id};
     }
 
     // 🎥 ویدیو
@@ -81,12 +82,12 @@ export class UploadController {
                 }
                 cb(null, true);
             },
-            limits: { fileSize: 100 * 1024 * 1024 }, // تا 100MB
+            limits: {fileSize: 100 * 1024 * 1024}, // تا 100MB
         }) as any,
     )
     async uploadVideo(@UploadedFile() file: Express.Multer.File) {
         const upload = await this.uploadService.saveFile(file, UploadType.VIDEO);
-        return { url: upload.url, id: upload.id };
+        return {url: upload.url, id: upload.id};
     }
 
     //chunk
@@ -95,7 +96,7 @@ export class UploadController {
         storage: diskStorage({
             destination: join(BASE_UPLOAD_PATH, 'chunks'),
             filename: (req, file, cb) => {
-                const { index, videoId } = req.body;
+                const {index, videoId} = req.body;
                 const id = videoId || uuid();
                 cb(null, `${id}-${index}`);
             }
@@ -108,11 +109,11 @@ export class UploadController {
         @Body('videoId') videoId?: string
     ) {
         const id = videoId || uuid();
-        return { success: true, videoId: id };
+        return {success: true, videoId: id};
     }
 
 
-    @Post('video-merge')
+    /*@Post('video-merge')
     async mergeChunks(@Body('videoId') videoId: string) {
         const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         const chunkDir = join(BASE_UPLOAD_PATH, 'chunks');
@@ -136,8 +137,10 @@ export class UploadController {
                         console.error('خطا در حذف chunk:', err);
                     }
                 }
-                resolve({ url: `${baseUrl}/uploads/videos/${videoId}.mp4` });
+                //resolve({ url: `${baseUrl}/uploads/videos/${videoId}.mp4` });
             });
+
+
 
             const appendNext = (index: number) => {
                 if (index >= chunkFiles.length) {
@@ -153,10 +156,70 @@ export class UploadController {
 
             appendNext(0);
         });
+    }*/
+
+
+    @Post('video-merge')
+    async mergeChunks(@Body('videoId') videoId: string) {
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        const chunkDir = join(BASE_UPLOAD_PATH, 'chunks');
+        const finalPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}.mp4`);
+        const fixedPath = join(BASE_UPLOAD_PATH, 'videos', `${videoId}-fixed.mp4`);
+
+        const chunkFiles = fs.readdirSync(chunkDir)
+            .filter(f => f.startsWith(videoId))
+            .sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
+
+        return new Promise((resolve, reject) => {
+            const writeStream = fs.createWriteStream(finalPath);
+
+            writeStream.on('error', reject);
+            writeStream.on('close', () => {
+                // پاکسازی chunkها
+                for (const chunkFile of chunkFiles) {
+                    const chunkPath = join(chunkDir, chunkFile);
+                    try {
+                        fs.unlinkSync(chunkPath);
+                    } catch (err) {
+                        console.error('خطا در حذف chunk:', err);
+                    }
+                }
+
+                // 👇 اجرای ffmpeg برای اصلاح فایل
+                exec(`ffmpeg -i "${finalPath}" -c copy -movflags faststart "${fixedPath}"`, (err) => {
+                    if (err) {
+                        console.error('خطا در ffmpeg:', err);
+                        return reject(err);
+                    }
+                    // حذف فایل خام و جایگزینی با فایل اصلاح‌شده
+                    try {
+                        fs.unlinkSync(finalPath);
+                        fs.renameSync(fixedPath, finalPath);
+                    } catch (err) {
+                        console.error('خطا در جایگزینی فایل:', err);
+                    }
+                    resolve({url: `${baseUrl}/uploads/videos/${videoId}.mp4`});
+                });
+            });
+
+            const appendNext = (index: number) => {
+                if (index >= chunkFiles.length) {
+                    writeStream.end();
+                    return;
+                }
+                const chunkPath = join(chunkDir, chunkFiles[index]);
+                const readStream = fs.createReadStream(chunkPath);
+                readStream.pipe(writeStream, {end: false});
+                readStream.on('end', () => appendNext(index + 1));
+                readStream.on('error', reject);
+            };
+
+            appendNext(0);
+        });
     }
 
 
-    // 📄 فایل عمومی (pdf, docx, zip و ...)
+// 📄 فایل عمومی (pdf, docx, zip و ...)
     @Post('file')
     @UseInterceptors(
         FileInterceptor('file', {
@@ -179,12 +242,12 @@ export class UploadController {
                 }
                 cb(null, true);
             },
-            limits: { fileSize: 20 * 1024 * 1024 }, // تا ۲۰ مگابایت
+            limits: {fileSize: 20 * 1024 * 1024}, // تا ۲۰ مگابایت
         }) as any,
     )
     async uploadFile(@UploadedFile() file: Express.Multer.File) {
         const upload = await this.uploadService.saveFile(file, UploadType.FILE);
-        return { url: upload.url, id: upload.id };
+        return {url: upload.url, id: upload.id};
     }
 
     @Delete()
