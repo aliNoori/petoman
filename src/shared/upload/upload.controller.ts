@@ -90,6 +90,13 @@ export class UploadController {
         return {url: upload.url, id: upload.id};
     }
 
+    @Post('init-video')
+    async initVideo() {
+        const id = uuid();   // ساختن یک شناسه یکتا
+        return { videoId: id };
+    }
+
+
     //chunk
     @Post('video-chunk')
     @UseInterceptors(FileInterceptor('chunk', {
@@ -166,7 +173,7 @@ export class UploadController {
 
         // پیدا کردن همه chunkها
         const chunkFiles = fs.readdirSync(chunkDir)
-            //.filter(f => f.startsWith(videoId))
+            .filter(f => f.startsWith(videoId))
             .sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
 
         if (chunkFiles.length === 0) {
