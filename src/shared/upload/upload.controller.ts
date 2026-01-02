@@ -166,12 +166,25 @@ export class UploadController {
         const finalPath = join(videoDir, `${videoId}.mp4`);
         const listPath = join(chunkDir, `${videoId}.txt`);
 
+        console.log('baseUrl',baseUrl)
+        console.log('chunkDir',chunkDir)
+        console.log('videoDir',videoDir)
+        console.log('finalPath',finalPath)
+        console.log('listPath',listPath)
+
+
         // پیدا کردن همه chunkها
         const chunkFiles = fs.readdirSync(chunkDir)
             .filter(f => f.startsWith(videoId))
             .sort((a, b) => parseInt(a.split('-')[1]) - parseInt(b.split('-')[1]));
-
+        console.log('chunkFilesbif',chunkFiles)
         if (chunkFiles.length === 0) {
+            console.log('chunkFilesaif',chunkFiles)
+            console.log('baseUrl',baseUrl)
+            console.log('chunkDir',chunkDir)
+            console.log('videoDir',videoDir)
+            console.log('finalPath',finalPath)
+            console.log('listPath',listPath)
             throw new Error('هیچ چانکی پیدا نشد');
         }
 
