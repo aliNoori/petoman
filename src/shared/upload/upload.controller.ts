@@ -98,7 +98,8 @@ export class UploadController {
             filename: (req, file, cb) => {
                 const {index, videoId} = req.body;
                 const id = videoId || uuid();
-                cb(null, `${id}-${index}`);
+                if (!index) { return cb(new Error('index is required'), ''); }
+                cb(null, `${id}-${index}.mp4`);
             }
         }),
     }) as any)
